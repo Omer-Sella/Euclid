@@ -9,6 +9,42 @@ import matplotlib.pyplot as plt
 import math
 import copy
 
+
+def binaryPlusOne(operand):
+    """
+    Adds 1 to the binary string operand.
+    No safety,i.e.: operand is assumed to be a string, with only binary content 9i.e.: 0s or 1s),
+            however a string may be returened only if it has the same length as operand.
+    """
+    
+    #print(str(operand))
+    length = len(operand)
+    k = len(operand) - 1
+    newSymbol = operand
+    notDone = True
+    
+    while (k >= 0 ) and notDone:
+        if operand[k] == '0':
+            
+            notDone = False
+            
+            if k == 0:
+                newSymbol = "1" + newSymbol[1:]
+            if k == length - 1:
+                newSymbol = newSymbol[0 : k ] + "1"
+            else:
+                newSymbol = newSymbol[0 : k ] + "1" + newSymbol[k + 1 : ]
+        else:
+            if k == 0:
+                newSymbol = "0" + newSymbol[1:]
+            if k == length - 1:
+                newSymbol = newSymbol[0 : k] + "0"
+            else:
+                newSymbol = newSymbol[0 : k] + "0" + newSymbol[k + 1:]
+            k = k - 1
+        assert(len(newSymbol) == length)
+    return newSymbol
+
 def byteToBases(inputByte, numOfBits = 8):
     if type(inputByte) != str:
         bitStream = (bin(int(inputByte.hex(), 16))[2:]).zfill(numOfBits)
@@ -186,40 +222,9 @@ def subSequenceGraphics(subSequences, occurances):
     ax.set_axis_off()
     plt.show()
     
-def binaryPlusOne(operand):
-    """
-    Adds 1 to the binary string operand.
-    No safety,i.e.: operand is assumed to be a string, with only binary content 9i.e.: 0s or 1s),
-            however a string may be returened only if it has the same length as operand.
-    """
-    
-    #print(str(operand))
-    length = len(operand)
-    k = len(operand) - 1
-    newSymbol = operand
-    notDone = True
-    
-    while (k >= 0 ) and notDone:
-        if operand[k] == '0':
-            
-            notDone = False
-            
-            if k == 0:
-                newSymbol = "1" + newSymbol[1:]
-            if k == length - 1:
-                newSymbol = newSymbol[0 : k ] + "1"
-            else:
-                newSymbol = newSymbol[0 : k ] + "1" + newSymbol[k + 1 : ]
-        else:
-            if k == 0:
-                newSymbol = "0" + newSymbol[1:]
-            if k == length - 1:
-                newSymbol = newSymbol[0 : k] + "0"
-            else:
-                newSymbol = newSymbol[0 : k] + "0" + newSymbol[k + 1:]
-            k = k - 1
-        assert(len(newSymbol) == length)
-    return newSymbol
+
+
+
 
 def checkViolation(symbol1, symbol2, constraintList):
     
@@ -260,6 +265,35 @@ def checkViolation(symbol1, symbol2, constraintList):
     
     return noViolation, violations, gcBalanceViolation
         
+def plotConnectivityMatrix(connectivityMatrix, xLabels, yLabels):
+    
+    (verticalDimension, horizontalDimension) = connectivityMatrix.shape
+    
+    fig, ax = plt.subplots()
+    ax.imshow((-1 * connectivityMatrix) + 1, cmap='Greys',  interpolation = None)
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    
+    
+    spacingVertical = 5 #verticalDimension // 50
+    spacingHorizontal = 5 #horizontalDimension // 50
+    xTickLocations = np.arange(0, horizontalDimension, spacingHorizontal)
+    xTickValues = []
+    for i in xTickLocations:
+        xTickValues.append(xLabels[i])
+    
+    yTickLocations = np.arange(0, verticalDimension, spacingVertical)
+    yTickValues = []
+    for i in yTickLocations:
+        yTickValues.append(yLabels[i])
+    
+    
+    plt.yticks(yTickLocations, yTickValues, fontsize = 16)
+    plt.xticks(xTickLocations, xTickValues, fontsize = 16, rotation = 90)
+    
+
 def connectivityMatrix(symbolSize = 4, consraintList = {}):
     
     sequencesBinary = []
@@ -303,7 +337,7 @@ def connectivityMatrix(symbolSize = 4, consraintList = {}):
     # cbar = axV.figure.colorbar(im)
     
     
-    return connectivityMatrix, sequencesBinary, violationsMatrix
+    return connectivityMatrix, sequencesBinary, sequencesBases, violationsMatrix
         
 
 
@@ -342,51 +376,58 @@ def constrainedChannelGraphics(matrix, symbolSize):
     ax.legend()
     return fig, ax, capacity[-1]
 
-def matrixReduce(matrix, axis:
+def generateXsequence(sequencesBases):
     
-    symbolSize = 4
-    sequencesBinary = []
-    sequencesBases = []
-    k = 0
-    symbol = "0" * (2 * symbolSize)
-    sequencesBinary.append(symbol)
-    sequencesBases.append(byteToBases(symbol))
+    newSeqBases = []
+    for seq in sequencesBases:
+        newSeq = seq[: -1] + "x"
     
-    while (k < 2 ** (2 * symbolSize) - 1):
-        symbol = binaryPlusOne(symbol)
-        sequencesBinary.append(symbol)
-        sequencesBases.append(byteToBases(symbol))
-        k = k + 1
+    return xSequence
+# def matrixReduce(matrix, axis):
     
-    #for number, value in enumerate(sequencesBinary):
-    #    print(str(number) + "  " + str(value))
+#     symbolSize = 4
+#     sequencesBinary = []
+#     sequencesBases = []
+#     k = 0
+#     symbol = "0" * (2 * symbolSize)
+#     sequencesBinary.append(symbol)
+#     sequencesBases.append(byteToBases(symbol))
     
+#     while (k < 2 ** (2 * symbolSize) - 1):
+#         symbol = binaryPlusOne(symbol)
+#         sequencesBinary.append(symbol)
+#         sequencesBases.append(byteToBases(symbol))
+#         k = k + 1
     
-    
-    tickLocations = np.arange(0,4**symbolSize,5)
-    tickValues = []
-    for i in tickLocations:
-        tickValues.append(sequencesBases[i])
-    #plt.yticks(tickLocations, tickValues, fontsize = 16)
-    #plt.xticks(tickLocations, tickValues, fontsize = 16, rotation = 90)
+#     #for number, value in enumerate(sequencesBinary):
+#     #    print(str(number) + "  " + str(value))
     
     
     
-    assert (axis == 0 or axis == 1)
-    (m,n) = matrix.shape
+#     tickLocations = np.arange(0,4**symbolSize,5)
+#     tickValues = []
+#     for i in tickLocations:
+#         tickValues.append(sequencesBases[i])
+#     #plt.yticks(tickLocations, tickValues, fontsize = 16)
+#     #plt.xticks(tickLocations, tickValues, fontsize = 16, rotation = 90)
     
-    if axis == 0:   
-        newMatrix1 = matrix[0 : m // 2, :]
-        newMatrix2 = matrix[m // 2 : , :]
-    else:
-        newMatrix1 = matrix[:, 0 : n // 2]
-        newMatrix2 = matrix[:, n // 2 : ]
     
-    assert (newMatrix1.shape == newMatrix2.shape)
-    foldedMatrix = np.where(newMatrix1 < newMatrix2, newMatrix1, newMatrix2)
-    if np.all(foldedMatrix == 0):
-        print("*** All zeros")
-    return foldedMatrix, newMatrix1, newMatrix2
+    
+#     assert (axis == 0 or axis == 1)
+#     (m,n) = matrix.shape
+    
+#     if axis == 0:   
+#         newMatrix1 = matrix[0 : m // 2, :]
+#         newMatrix2 = matrix[m // 2 : , :]
+#     else:
+#         newMatrix1 = matrix[:, 0 : n // 2]
+#         newMatrix2 = matrix[:, n // 2 : ]
+    
+#     assert (newMatrix1.shape == newMatrix2.shape)
+#     foldedMatrix = np.where(newMatrix1 < newMatrix2, newMatrix1, newMatrix2)
+#     if np.all(foldedMatrix == 0):
+#         print("*** All zeros")
+#     return foldedMatrix, newMatrix1, newMatrix2
 
 
 """    
@@ -418,48 +459,28 @@ ax.set_xlabel('G-C variance allowed, centred around 0.5', fontsize = 18)
 ax.set_ylabel('Capacity', fontsize = 18)
 """
 
+
+
 #demoConstraintList = {'gcMin': 0.25, 'gcMax': 0.65, 'runLength': 7}#, 'regex1': '[ACTG][ACTG][ACTG]AA[ACTG][ACTG][ACTG]'}
 demoConstraintList = {'gcMin': 0.0, 'gcMax': 1.0, 'runLength': 8, 
                       'regex1': '[ACTG][ACTG][ACTG]AA[ACTG][ACTG][ACTG]',
                       'regex2': '[ACTG][ACTG][ACTG]CC[ACTG][ACTG][ACTG]',
-                      'regex3': '[ACTG][ACTG][ACTG]GG[ACTG][ACTG][ACTG]',
-                      'regex4': '[ACTG][ACTG][ACTG]TT[ACTG][ACTG][ACTG]',
-                      'regex5': '[ACTG][ACTG][ACTG]CG[ACTG][ACTG][ACTG]'}
+                      'regex3': '[ACTG][ACTG][ACTG]GA[ACTG][ACTG][ACTG]',
+                      'regex4': '[ACTG][ACTG][ACTG]CT[ACTG][ACTG][ACTG]'}#,
+                      #'regex5': '[ACTG][ACTG][ACTG]CG[ACTG][ACTG][ACTG]'}
 #constraintListThatDeniesAAinTheMiddle = {'gcMin': 0.0, 'gcMax': 1.0, 'runLength': 9, 'regex1': '[ACTG][ACTG][ACTG]AA[ACTG][ACTG][ACTG]'}
-A, seq, V = connectivityMatrix(4, demoConstraintList)
-fig, ax = plt.subplots()
-reducedA1 = matrixReduce(A, 1)
-ax.imshow((-1 * reducedA1) + 1, cmap='Greys',  interpolation = None)
+A, seqBinary, seqBases, V = connectivityMatrix(4, demoConstraintList)
 
+(m,n) = A.shape
+ALeft = A[:, 0 : n//2]
+ARight = A[:, n//2 : n]
+AUp = A[0 : n//2, :]
+ADown = A[n//2 : n, :]
 
-# connectivityMatrix, sequencesBinary, violationsMatrix = connectivityMatrix(4, demoConstraintList)
-# newConnectivityMatrix, m1, m2 = matrixReduce(connectivityMatrix, 0)
-# fig, ax = plt.subplots()
-# ax.imshow((-1 * m1) + 1, cmap='Greys',  interpolation = None)
-# ax.spines['top'].set_visible(False)
-# ax.spines['bottom'].set_visible(False)
-# ax.spines['right'].set_visible(False)
-# ax.spines['left'].set_visible(False)
-
-tickLocations = np.arange(0,256,5)
-tickValues = []
-for i in tickLocations:
-    tickValues.append(sequencesBases[i])
-plt.yticks(tickLocations, tickValues, fontsize = 16)
-plt.xticks(tickLocations, tickValues, fontsize = 16, rotation = 90)
-
-fig, ax = plt.subplots()
-ax.imshow((-1 * m2) + 1, cmap='Greys',  interpolation = None)
-ax.spines['top'].set_visible(False)
-ax.spines['bottom'].set_visible(False)
-ax.spines['right'].set_visible(False)
-ax.spines['left'].set_visible(False)
-
-tickLocations = np.arange(0,256,5)
-tickValues = []
-for i in tickLocations:
-    tickValues.append(sequencesBases[i])
-plt.yticks(tickLocations, tickValues, fontsize = 16)
-plt.xticks(tickLocations, tickValues, fontsize = 16, rotation = 90)
-
-# ## Now I need to produce the following graphics: 1. Two distinct slices of the connectivityMatrix 2. The minimum between them.
+plotConnectivityMatrix(ALeft, seqBases[0 : n//2], seqBases)
+plotConnectivityMatrix(ARight, seqBases[n//2 : n], seqBases)
+xSuequene = generate
+reducedALR = np.where(ALeft > ARight, ALeft, ARight)
+plotConnectivityMatrix(AUp, seqBases, seqBases[0 : n//2])
+plotConnectivityMatrix(ADown, seqBases, seqBases[n//2 : n])
+reducedAUD = np.where(ADown > AUp, ADown, AUp)
