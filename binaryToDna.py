@@ -290,8 +290,8 @@ def plotConnectivityMatrix(connectivityMatrix, xLabels, yLabels):
         yTickValues.append(yLabels[i])
     
     
-    plt.yticks(yTickLocations, yTickValues, fontsize = 16)
-    plt.xticks(xTickLocations, xTickValues, fontsize = 16, rotation = 90)
+    plt.yticks(yTickLocations, yTickValues, fontsize = 45)
+    plt.xticks(xTickLocations, xTickValues, fontsize = 45, rotation = 90)
     
 
 def connectivityMatrix(symbolSize = 4, consraintList = {}):
@@ -376,11 +376,12 @@ def constrainedChannelGraphics(matrix, symbolSize):
     ax.legend()
     return fig, ax, capacity[-1]
 
-def generateXsequence(sequencesBases):
+def generateXsequence(symbolToAdd, sequencesBases):
     
-    newSeqBases = []
+    xSequence = []
     for seq in sequencesBases:
-        newSeq = seq[: -1] + "x"
+        newSeq = seq[: -1] + symbolToAdd
+        xSequence.append(newSeq)
     
     return xSequence
 # def matrixReduce(matrix, axis):
@@ -479,8 +480,12 @@ ADown = A[n//2 : n, :]
 
 plotConnectivityMatrix(ALeft, seqBases[0 : n//2], seqBases)
 plotConnectivityMatrix(ARight, seqBases[n//2 : n], seqBases)
-xSuequene = generate
+
 reducedALR = np.where(ALeft > ARight, ALeft, ARight)
 plotConnectivityMatrix(AUp, seqBases, seqBases[0 : n//2])
 plotConnectivityMatrix(ADown, seqBases, seqBases[n//2 : n])
+xSequence = generateXsequence('xR', seqBases[0 : n//2])
+ySequence = generateXsequence('yR', seqBases[0 : n//2])
 reducedAUD = np.where(ADown > AUp, ADown, AUp)
+finalReduced = np.where(reducedAUD[:, 0 : n//2] > reducedAUD[:, n//2 : n], reducedAUD[:, 0 : n//2], )
+plotConnectivityMatrix(reducedAUD, seqBases, xSequence)
