@@ -265,7 +265,17 @@ def checkViolation(symbol1, symbol2, constraintList):
     
     return noViolation, violations, gcBalanceViolation
         
-def plotConnectivityMatrix(connectivityMatrix, xLabels, yLabels):
+def plotConnectivityMatrix(connectivityMatrix, xLabels = None, yLabels = None, xSize = None, ySize = None):
+    
+    if xSize is None:
+        xFontSize = 28
+    else:
+        xFontSize = xSize
+    
+    if ySize is None:
+        yFontSize = 28
+    else:
+        yFontSize = ySize
     
     (verticalDimension, horizontalDimension) = connectivityMatrix.shape
     
@@ -279,19 +289,22 @@ def plotConnectivityMatrix(connectivityMatrix, xLabels, yLabels):
     
     spacingVertical = 5 #verticalDimension // 50
     spacingHorizontal = 5 #horizontalDimension // 50
-    xTickLocations = np.arange(0, horizontalDimension, spacingHorizontal)
-    xTickValues = []
-    for i in xTickLocations:
-        xTickValues.append(xLabels[i])
     
-    yTickLocations = np.arange(0, verticalDimension, spacingVertical)
-    yTickValues = []
-    for i in yTickLocations:
-        yTickValues.append(yLabels[i])
+    if xLabels is not None :
+        xTickLocations = np.arange(0, horizontalDimension, spacingHorizontal)
+        xTickValues = []
+        for i in xTickLocations:
+            xTickValues.append(xLabels[i])
+        plt.xticks(xTickLocations, xTickValues, fontsize = xFontSize, rotation = 90)
     
+    if yLabels is not None :
+        yTickLocations = np.arange(0, verticalDimension, spacingVertical)
+        yTickValues = []
+        for i in yTickLocations:
+            yTickValues.append(yLabels[i])
     
-    plt.yticks(yTickLocations, yTickValues, fontsize = 45)
-    plt.xticks(xTickLocations, xTickValues, fontsize = 45, rotation = 90)
+        plt.yticks(yTickLocations, yTickValues, fontsize = yFontSize)
+    
     
 
 def connectivityMatrix(symbolSize = 4, consraintList = {}):
@@ -331,12 +344,9 @@ def connectivityMatrix(symbolSize = 4, consraintList = {}):
         tickValues.append(sequencesBases[i])
     plt.yticks(tickLocations, tickValues, fontsize = 16)
     plt.xticks(tickLocations, tickValues, fontsize = 16, rotation = 90)
-    
     # figV, axV = plt.subplots()
     # im = axV.imshow(violationsMatrix, cmap="YlGn")
     # cbar = axV.figure.colorbar(im)
-    
-    
     return connectivityMatrix, sequencesBinary, sequencesBases, violationsMatrix
         
 
@@ -461,16 +471,24 @@ ax.set_ylabel('Capacity', fontsize = 18)
 """
 
 
+gcContentDemoList = {'gcMin': 0.15, 'gcMax': 0.85, 'runLength': 10}#, 'regex1': '[ACTG][ACTG][ACTG]AA[ACTG][ACTG][ACTG]'}
 
 #demoConstraintList = {'gcMin': 0.25, 'gcMax': 0.65, 'runLength': 7}#, 'regex1': '[ACTG][ACTG][ACTG]AA[ACTG][ACTG][ACTG]'}
-demoConstraintList = {'gcMin': 0.0, 'gcMax': 1.0, 'runLength': 8, 
+demoConstraintList = {'gcMin': 0.0, 'gcMax': 1.0, 'runLength': 10, 
                       'regex1': '[ACTG][ACTG][ACTG]AA[ACTG][ACTG][ACTG]',
                       'regex2': '[ACTG][ACTG][ACTG]CC[ACTG][ACTG][ACTG]',
                       'regex3': '[ACTG][ACTG][ACTG]GA[ACTG][ACTG][ACTG]',
                       'regex4': '[ACTG][ACTG][ACTG]CT[ACTG][ACTG][ACTG]'}#,
                       #'regex5': '[ACTG][ACTG][ACTG]CG[ACTG][ACTG][ACTG]'}
+
 #constraintListThatDeniesAAinTheMiddle = {'gcMin': 0.0, 'gcMax': 1.0, 'runLength': 9, 'regex1': '[ACTG][ACTG][ACTG]AA[ACTG][ACTG][ACTG]'}
+
+
+demoConstraintList = gcContentDemoList
+
 A, seqBinary, seqBases, V = connectivityMatrix(4, demoConstraintList)
+
+plotConnectivityMatrix(A, seqBases, seqBases, xSize = 28, ySize = 28)
 
 (m,n) = A.shape
 ALeft = A[:, 0 : n//2]
@@ -481,11 +499,39 @@ ADown = A[n//2 : n, :]
 plotConnectivityMatrix(ALeft, seqBases[0 : n//2], seqBases)
 plotConnectivityMatrix(ARight, seqBases[n//2 : n], seqBases)
 
-reducedALR = np.where(ALeft > ARight, ALeft, ARight)
-plotConnectivityMatrix(AUp, seqBases, seqBases[0 : n//2])
-plotConnectivityMatrix(ADown, seqBases, seqBases[n//2 : n])
-xSequence = generateXsequence('xR', seqBases[0 : n//2])
+
+#plotConnectivityMatrix(AUp, seqBases, seqBases[0 : n//2])
+#plotConnectivityMatrix(ADown, seqBases, seqBases[n//2 : n])
+
 ySequence = generateXsequence('yR', seqBases[0 : n//2])
+xSequence = generateXsequence('xR', seqBases[0 : n//2])
+
+reducedALR = np.where(ALeft > ARight, ALeft, ARight)
 reducedAUD = np.where(ADown > AUp, ADown, AUp)
-finalReduced = np.where(reducedAUD[:, 0 : n//2] > reducedAUD[:, n//2 : n], reducedAUD[:, 0 : n//2], )
-plotConnectivityMatrix(reducedAUD, seqBases, xSequence)
+#finalReduced = np.where(reducedAUD[:, 0 : n//2] > reducedAUD[:, n//2 : n], reducedAUD[:, 0 : n//2], )
+#plotConnectivityMatrix(reducedAUD, seqBases, xSequence)
+plotConnectivityMatrix(reducedALR, xLabels = xSequence, yLabels = seqBases)
+
+reducedALR_left =  reducedALR[: , 0 : n // 4]
+reducedALR_right = reducedALR[: , n // 4 : n // 2]
+xxSequence = generateXsequence('RR', seqBases[0 : n//4])
+plotConnectivityMatrix(reducedALR_left, yLabels = seqBases, xLabels = xxSequence)
+plotConnectivityMatrix(reducedALR_right, yLabels = seqBases, xLabels = xxSequence)
+
+# Omer Sella: Very
+reducedReducedALR = np.where(reducedALR_left > reducedALR_right, reducedALR_left, reducedALR_right)
+plotConnectivityMatrix(reducedReducedALR, yLabels = seqBases, xLabels = xxSequence)
+
+
+
+reducedReducedALR_left =  reducedReducedALR[: , 0 : n // 8]
+reducedReducedALR_right = reducedReducedALR[: , n // 8 : n // 4]
+xxxSequence = generateXsequence('RR', seqBases[0 : n//4])
+plotConnectivityMatrix(reducedReducedALR_left, yLabels = seqBases)
+plotConnectivityMatrix(reducedReducedALR_right, yLabels = seqBases)
+xRRSequence = generateXsequence('xRR', seqBases[0 : n//4])
+# Omer Sella: Very
+RRRSequence = generateXsequence('RRR', seqBases[0 : n // 8])
+reducedReducedReducedALR = np.where(reducedReducedALR_left > reducedReducedALR_right, reducedReducedALR_left, reducedReducedALR_right)
+plotConnectivityMatrix(reducedReducedReducedALR, yLabels = seqBases, xLabels = RRRSequence)
+
