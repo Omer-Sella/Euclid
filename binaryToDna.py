@@ -230,9 +230,10 @@ def checkViolation(symbol1, symbol2, constraintList):
     
     violations = 0
     gcBalanceViolation = False
-    reversedSymbol2 = symbol2[::-1]
-    reversedSymbol1 = symbol1[::-1]
-    concatenatedSymbols = reversedSymbol1 + symbol2
+    #reversedSymbol2 = symbol2[::-1]
+    #reversedSymbol1 = symbol1[::-1]
+    #concatenatedSymbols = reversedSymbol1 + symbol2
+    concatenatedSymbols = symbol1 + symbol2
     #print(concatenatedSymbols)
     if ('runLength' in constraintList):
         runL = constraintList['runLength']
@@ -265,7 +266,7 @@ def checkViolation(symbol1, symbol2, constraintList):
     
     return noViolation, violations, gcBalanceViolation
         
-def plotConnectivityMatrix(connectivityMatrix, xLabels = None, yLabels = None, xSize = None, ySize = None):
+def plotConnectivityMatrix(connectivityMatrix, xLabels = None, yLabels = None, xSize = None, ySize = None, fileName = None, figureSize = None, figParams = None):
     
     if xSize is None:
         xFontSize = 28
@@ -278,8 +279,12 @@ def plotConnectivityMatrix(connectivityMatrix, xLabels = None, yLabels = None, x
         yFontSize = ySize
     
     (verticalDimension, horizontalDimension) = connectivityMatrix.shape
-    
-    fig, ax = plt.subplots()
+    if figParams is None:
+        fig, ax = plt.subplots()
+    else:
+        fig = figParams[0]
+        ax = figParams[1]
+        plt.sca(ax)
     ax.imshow((-1 * connectivityMatrix) + 1, cmap='Greys',  interpolation = None)
     ax.spines['top'].set_visible(False)
     ax.spines['bottom'].set_visible(False)
@@ -304,6 +309,15 @@ def plotConnectivityMatrix(connectivityMatrix, xLabels = None, yLabels = None, x
             yTickValues.append(yLabels[i])
     
         plt.yticks(yTickLocations, yTickValues, fontsize = yFontSize)
+        
+    if fileName is not None:
+        if figureSize is not None:
+            plt.savefig(fileName, figsize = figureSize)
+        else:
+            plt.tight_layout()
+            plt.savefig(fileName)
+            
+    return fig, ax
     
     
 
@@ -535,3 +549,8 @@ RRRSequence = generateXsequence('RRR', seqBases[0 : n // 8])
 reducedReducedReducedALR = np.where(reducedReducedALR_left > reducedReducedALR_right, reducedReducedALR_left, reducedReducedALR_right)
 plotConnectivityMatrix(reducedReducedReducedALR, yLabels = seqBases, xLabels = RRRSequence)
 
+fig, ax = plt.subplots(1, 4, gridspec_kw={'width_ratios': [2, 2, 2, 1]})
+plotConnectivityMatrix(ALeft, xLabels = seqBases[0 : n//2], yLabels = seqBases, figParams = [fig, ax[0]])
+plotConnectivityMatrix(ARight, xLabels = seqBases[n//2 : ], yLabels = seqBases, figParams = [fig, ax[1]])
+plotConnectivityMatrix(reducedALR, xLabels = xSequence, yLabels = seqBases, figParams = [fig, ax[2]])
+plotConnectivityMatrix(reducedReducedALR, xLabels = xxSequence, yLabels = seqBases, figParams = [fig, ax[3]])
