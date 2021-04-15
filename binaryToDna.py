@@ -404,7 +404,7 @@ def generateXsequence(symbolToAdd, sequencesBases):
     
     xSequence = []
     for seq in sequencesBases:
-        newSeq = seq[: -1] + symbolToAdd
+        newSeq = symbolToAdd + seq[1 : ]
         xSequence.append(newSeq)
     
     return xSequence
@@ -517,8 +517,8 @@ plotConnectivityMatrix(ARight, seqBases[n//2 : n], seqBases)
 #plotConnectivityMatrix(AUp, seqBases, seqBases[0 : n//2])
 #plotConnectivityMatrix(ADown, seqBases, seqBases[n//2 : n])
 
-ySequence = generateXsequence('yR', seqBases[0 : n//2])
-xSequence = generateXsequence('xR', seqBases[0 : n//2])
+ySequence = generateXsequence('Ry', seqBases[0 : n//2])
+xSequence = generateXsequence('Rx', seqBases[0 : n//2])
 
 reducedALR = np.where(ALeft > ARight, ALeft, ARight)
 reducedAUD = np.where(ADown > AUp, ADown, AUp)
@@ -543,9 +543,9 @@ reducedReducedALR_right = reducedReducedALR[: , n // 8 : n // 4]
 xxxSequence = generateXsequence('RR', seqBases[0 : n//4])
 plotConnectivityMatrix(reducedReducedALR_left, yLabels = seqBases)
 plotConnectivityMatrix(reducedReducedALR_right, yLabels = seqBases)
-xRRSequence = generateXsequence('xRR', seqBases[0 : n//4])
+xRRSequence = generateXsequence('RRx', seqBases[0 : n//4])
 # Omer Sella: Very
-RRRSequence = generateXsequence('RRR', seqBases[0 : n // 8])
+RRRSequence = generateXsequence('RRRx', seqBases[0 : n // 8])
 reducedReducedReducedALR = np.where(reducedReducedALR_left > reducedReducedALR_right, reducedReducedALR_left, reducedReducedALR_right)
 plotConnectivityMatrix(reducedReducedReducedALR, yLabels = seqBases, xLabels = RRRSequence)
 
@@ -554,3 +554,7 @@ plotConnectivityMatrix(ALeft, xLabels = seqBases[0 : n//2], yLabels = seqBases, 
 plotConnectivityMatrix(ARight, xLabels = seqBases[n//2 : ], yLabels = seqBases, figParams = [fig, ax[1]])
 plotConnectivityMatrix(reducedALR, xLabels = xSequence, yLabels = seqBases, figParams = [fig, ax[2]])
 plotConnectivityMatrix(reducedReducedALR, xLabels = xxSequence, yLabels = seqBases, figParams = [fig, ax[3]])
+ax[0].set_title('(a)', size = 40, pad = 15)
+ax[1].set_title('(b)', size = 40, pad = 15)
+ax[2].set_title('(c)', size = 40, pad = 15)
+ax[3].set_title('(d)', size = 40, pad = 15)
