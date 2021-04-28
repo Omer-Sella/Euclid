@@ -8,7 +8,7 @@ import re
 import matplotlib.pyplot as plt
 import math
 import copy
-
+import matplotlib.cm as cm
 
 def binaryPlusOne(operand):
     """
@@ -345,19 +345,19 @@ def connectivityMatrix(symbolSize = 4, consraintList = {}):
         for j in range(2**(symbolSize * 2)):
             connectivityMatrix[i,j], violations, gcBalance = checkViolation(sequencesBases[i], sequencesBases[j], consraintList)
             violationsMatrix[i,j] = violations + gcBalance
-    fig, ax = plt.subplots()
-    ax.imshow((-1 * connectivityMatrix) + 1, cmap='Greys',  interpolation = None)
-    ax.spines['top'].set_visible(False)
-    ax.spines['bottom'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['left'].set_visible(False)
+    # fig, ax = plt.subplots()
+    # ax.imshow((-1 * connectivityMatrix) + 1, cmap='Greys',  interpolation = None)
+    # ax.spines['top'].set_visible(False)
+    # ax.spines['bottom'].set_visible(False)
+    # ax.spines['right'].set_visible(False)
+    # ax.spines['left'].set_visible(False)
     
-    tickLocations = np.arange(0,256,5)
-    tickValues = []
-    for i in tickLocations:
-        tickValues.append(sequencesBases[i])
-    plt.yticks(tickLocations, tickValues, fontsize = 16)
-    plt.xticks(tickLocations, tickValues, fontsize = 16, rotation = 90)
+    # tickLocations = np.arange(0,256,5)
+    # tickValues = []
+    # for i in tickLocations:
+    #     tickValues.append(sequencesBases[i])
+    # plt.yticks(tickLocations, tickValues, fontsize = 16)
+    # plt.xticks(tickLocations, tickValues, fontsize = 16, rotation = 90)
     # figV, axV = plt.subplots()
     # im = axV.imshow(violationsMatrix, cmap="YlGn")
     # cbar = axV.figure.colorbar(im)
@@ -486,7 +486,7 @@ ax.set_ylabel('Capacity', fontsize = 18)
 
 
 gcContentDemoList = {'gcMin': 0.15, 'gcMax': 0.85, 'runLength': 10}#, 'regex1': '[ACTG][ACTG][ACTG]AA[ACTG][ACTG][ACTG]'}
-
+gcContentDemoList2 = {'gcMin': 0.35, 'gcMax': 0.65, 'runLength': 10}#, 'regex1': '[ACTG][ACTG][ACTG]AA[ACTG][ACTG][ACTG]'}
 #demoConstraintList = {'gcMin': 0.25, 'gcMax': 0.65, 'runLength': 7}#, 'regex1': '[ACTG][ACTG][ACTG]AA[ACTG][ACTG][ACTG]'}
 demoConstraintList = {'gcMin': 0.0, 'gcMax': 1.0, 'runLength': 10, 
                       'regex1': '[ACTG][ACTG][ACTG]AA[ACTG][ACTG][ACTG]',
@@ -498,7 +498,7 @@ demoConstraintList = {'gcMin': 0.0, 'gcMax': 1.0, 'runLength': 10,
 #constraintListThatDeniesAAinTheMiddle = {'gcMin': 0.0, 'gcMax': 1.0, 'runLength': 9, 'regex1': '[ACTG][ACTG][ACTG]AA[ACTG][ACTG][ACTG]'}
 
 
-demoConstraintList = gcContentDemoList
+demoConstraintList = gcContentDemoList2#gcContentDemoList
 
 A, seqBinary, seqBases, V = connectivityMatrix(4, demoConstraintList)
 
@@ -558,3 +558,58 @@ ax[0].set_title('(a)', size = 40, pad = 15)
 ax[1].set_title('(b)', size = 40, pad = 15)
 ax[2].set_title('(c)', size = 40, pad = 15)
 ax[3].set_title('(d)', size = 40, pad = 15)
+
+
+def reduceMatrix(inMatrix):
+    _, l = inMatrix.shape
+    left = inMatrix[:, 0: l//2 ]
+    right = inMatrix[:, l//2 : l]
+    outMatrix = np.where(left > right, left, right)
+    fullyConnected = np.all(outMatrix)
+    return outMatrix, fullyConnected
+
+def findBitValue(matrix, maxBits):
+    i = 0
+    fullyConnected = np.all(matrix)
+    while (i < maxBits) and not fullyConnected:
+        outMatrix, fullyConnected = reduceMatrix(matrix)
+        matrix = outMatrix
+        i = i + 1
+    return i, fullyConnected
+
+def scanGCValues():
+    low = np.arange(0.05, 0.5, 0.05)
+    high = np.arange(0.55, 0.95, 0.05)
+    results = []
+    for l in low:
+        for h in high:
+            gcContentConstraint = {'gcMin': l, 'gcMax': h, 'runLength': 10}#, 'regex1': '[ACTG][ACTG][ACTG]AA[ACTG][ACTG][ACTG]'}
+            matrix, seqBinary, seqBases, V = connectivityMatrix(4, gcContentConstraint)
+            numOfBits, isDone = findBitValue(matrix, 7)
+            print(numOfBits)
+            print(isDone)
+            if isDone:
+                results.append([l,h,numOfBits])
+    return results
+
+def getPareto():
+    colors = cm.rainbow(np.linspace(0, 1, 8))
+    results = scanGCValues()
+    fig, ax = plt.subplots()
+    for g in range(8):
+        lows = []
+        highs = []
+        for [l,h,b] in results:
+            if b == g:
+                lows.append(l)
+                highs.append(h)
+        if len(lows) > 0:
+            text = str(g) + " reserved bits"
+            ax.scatter(lows, highs, c=colors[g], label = text)
+    ax.set_title("Pareto fronts of G-C content limits as a function of reserved bits", fontsize = 18)
+    ax.set_xlabel("G-C content low limit", fontsize = 18)
+    ax.set_ylabel("G-C content high limit", fontsize = 18)
+    ax.set_ylim(0.92, 0.53)
+    ax.legend(fontsize = 18)
+    
+    return fig, ax
