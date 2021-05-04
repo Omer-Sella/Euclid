@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import math
 import copy
 import matplotlib.cm as cm
+import matplotlib.colors
 
 def binaryPlusOne(operand):
     """
@@ -266,7 +267,7 @@ def checkViolation(symbol1, symbol2, constraintList):
     
     return noViolation, violations, gcBalanceViolation
         
-def plotConnectivityMatrix(connectivityMatrix, xLabels = None, yLabels = None, xSize = None, ySize = None, fileName = None, figureSize = None, figParams = None):
+def plotConnectivityMatrix(connectivityMatrix, xLabels = None, yLabels = None, xSize = None, ySize = None, fileName = None, figureSize = None, figParams = None, colour = None, alpha = None, verticalSpacing = None, horizontalSpacing = None):
     
     if xSize is None:
         xFontSize = 28
@@ -285,15 +286,28 @@ def plotConnectivityMatrix(connectivityMatrix, xLabels = None, yLabels = None, x
         fig = figParams[0]
         ax = figParams[1]
         plt.sca(ax)
-    ax.imshow((-1 * connectivityMatrix) + 1, cmap='Greys',  interpolation = None)
+        
+    if colour is None:
+        colourMap = 'Greys'
+    else:
+        colourMap = colour
+        
+    
+    ax.imshow((-1 * connectivityMatrix) + 1, cmap=colourMap,  interpolation = None, alpha = alpha)
     ax.spines['top'].set_visible(False)
     ax.spines['bottom'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.spines['left'].set_visible(False)
     
     
-    spacingVertical = 5 #verticalDimension // 50
-    spacingHorizontal = 5 #horizontalDimension // 50
+    if verticalSpacing is None:
+        spacingVertical = 5 #verticalDimension // 50
+    else:
+        spacingVertical = verticalSpacing
+    if horizontalSpacing is None:
+        spacingHorizontal = 5 #horizontalDimension // 50
+    else:
+        spacingHorizontal = horizontalSpacing
     
     if xLabels is not None :
         xTickLocations = np.arange(0, horizontalDimension, spacingHorizontal)
@@ -497,67 +511,67 @@ demoConstraintList = {'gcMin': 0.0, 'gcMax': 1.0, 'runLength': 10,
 
 #constraintListThatDeniesAAinTheMiddle = {'gcMin': 0.0, 'gcMax': 1.0, 'runLength': 9, 'regex1': '[ACTG][ACTG][ACTG]AA[ACTG][ACTG][ACTG]'}
 
+def produceFigure4():
+    #demoConstraintList = gcContentDemoList2#gcContentDemoList
+    demoConstraintList = {'gcMin': 0.15, 'gcMax': 0.85, 'runLength': 6, 'regex1': 'AGCCTAG', 'regex2': 'TCGGATC', 'regex3': 'GATCCGA', 'regex4': 'CTAGGCT','regex5': 'AGCAGC', 'regex6': 'A[AGCT][AGCT][AGCT]CTAG'}
+    A, seqBinary, seqBases, V = connectivityMatrix(4, demoConstraintList)
 
-demoConstraintList = gcContentDemoList2#gcContentDemoList
+    plotConnectivityMatrix(A, seqBases, seqBases, xSize = 28, ySize = 28)
 
-A, seqBinary, seqBases, V = connectivityMatrix(4, demoConstraintList)
-
-plotConnectivityMatrix(A, seqBases, seqBases, xSize = 28, ySize = 28)
-
-(m,n) = A.shape
-ALeft = A[:, 0 : n//2]
-ARight = A[:, n//2 : n]
-AUp = A[0 : n//2, :]
-ADown = A[n//2 : n, :]
-
-plotConnectivityMatrix(ALeft, seqBases[0 : n//2], seqBases)
-plotConnectivityMatrix(ARight, seqBases[n//2 : n], seqBases)
-
-
-#plotConnectivityMatrix(AUp, seqBases, seqBases[0 : n//2])
-#plotConnectivityMatrix(ADown, seqBases, seqBases[n//2 : n])
-
-ySequence = generateXsequence('Ry', seqBases[0 : n//2])
-xSequence = generateXsequence('Rx', seqBases[0 : n//2])
-
-reducedALR = np.where(ALeft > ARight, ALeft, ARight)
-reducedAUD = np.where(ADown > AUp, ADown, AUp)
-#finalReduced = np.where(reducedAUD[:, 0 : n//2] > reducedAUD[:, n//2 : n], reducedAUD[:, 0 : n//2], )
-#plotConnectivityMatrix(reducedAUD, seqBases, xSequence)
-plotConnectivityMatrix(reducedALR, xLabels = xSequence, yLabels = seqBases)
-
-reducedALR_left =  reducedALR[: , 0 : n // 4]
-reducedALR_right = reducedALR[: , n // 4 : n // 2]
-xxSequence = generateXsequence('RR', seqBases[0 : n//4])
-plotConnectivityMatrix(reducedALR_left, yLabels = seqBases, xLabels = xxSequence)
-plotConnectivityMatrix(reducedALR_right, yLabels = seqBases, xLabels = xxSequence)
-
-# Omer Sella: Very
-reducedReducedALR = np.where(reducedALR_left > reducedALR_right, reducedALR_left, reducedALR_right)
-plotConnectivityMatrix(reducedReducedALR, yLabels = seqBases, xLabels = xxSequence)
-
-
-
-reducedReducedALR_left =  reducedReducedALR[: , 0 : n // 8]
-reducedReducedALR_right = reducedReducedALR[: , n // 8 : n // 4]
-xxxSequence = generateXsequence('RR', seqBases[0 : n//4])
-plotConnectivityMatrix(reducedReducedALR_left, yLabels = seqBases)
-plotConnectivityMatrix(reducedReducedALR_right, yLabels = seqBases)
-xRRSequence = generateXsequence('RRx', seqBases[0 : n//4])
-# Omer Sella: Very
-RRRSequence = generateXsequence('RRRx', seqBases[0 : n // 8])
-reducedReducedReducedALR = np.where(reducedReducedALR_left > reducedReducedALR_right, reducedReducedALR_left, reducedReducedALR_right)
-plotConnectivityMatrix(reducedReducedReducedALR, yLabels = seqBases, xLabels = RRRSequence)
-
-fig, ax = plt.subplots(1, 4, gridspec_kw={'width_ratios': [2, 2, 2, 1]})
-plotConnectivityMatrix(ALeft, xLabels = seqBases[0 : n//2], yLabels = seqBases, figParams = [fig, ax[0]])
-plotConnectivityMatrix(ARight, xLabels = seqBases[n//2 : ], yLabels = seqBases, figParams = [fig, ax[1]])
-plotConnectivityMatrix(reducedALR, xLabels = xSequence, yLabels = seqBases, figParams = [fig, ax[2]])
-plotConnectivityMatrix(reducedReducedALR, xLabels = xxSequence, yLabels = seqBases, figParams = [fig, ax[3]])
-ax[0].set_title('(a)', size = 40, pad = 15)
-ax[1].set_title('(b)', size = 40, pad = 15)
-ax[2].set_title('(c)', size = 40, pad = 15)
-ax[3].set_title('(d)', size = 40, pad = 15)
+    (m,n) = A.shape
+    ALeft = A[:, 0 : n//2]
+    ARight = A[:, n//2 : n]
+    AUp = A[0 : n//2, :]
+    ADown = A[n//2 : n, :]
+    
+    plotConnectivityMatrix(ALeft, seqBases[0 : n//2], seqBases)
+    plotConnectivityMatrix(ARight, seqBases[n//2 : n], seqBases)
+    
+    
+    #plotConnectivityMatrix(AUp, seqBases, seqBases[0 : n//2])
+    #plotConnectivityMatrix(ADown, seqBases, seqBases[n//2 : n])
+    
+    ySequence = generateXsequence('Ry', seqBases[0 : n//2])
+    xSequence = generateXsequence('Rx', seqBases[0 : n//2])
+    
+    reducedALR = np.where(ALeft > ARight, ALeft, ARight)
+    reducedAUD = np.where(ADown > AUp, ADown, AUp)
+    #finalReduced = np.where(reducedAUD[:, 0 : n//2] > reducedAUD[:, n//2 : n], reducedAUD[:, 0 : n//2], )
+    #plotConnectivityMatrix(reducedAUD, seqBases, xSequence)
+    plotConnectivityMatrix(reducedALR, xLabels = xSequence, yLabels = seqBases)
+    
+    reducedALR_left =  reducedALR[: , 0 : n // 4]
+    reducedALR_right = reducedALR[: , n // 4 : n // 2]
+    xxSequence = generateXsequence('RR', seqBases[0 : n//4])
+    plotConnectivityMatrix(reducedALR_left, yLabels = seqBases, xLabels = xxSequence)
+    plotConnectivityMatrix(reducedALR_right, yLabels = seqBases, xLabels = xxSequence)
+    
+    # Omer Sella: Very
+    reducedReducedALR = np.where(reducedALR_left > reducedALR_right, reducedALR_left, reducedALR_right)
+    plotConnectivityMatrix(reducedReducedALR, yLabels = seqBases, xLabels = xxSequence)
+    
+    
+    
+    reducedReducedALR_left =  reducedReducedALR[: , 0 : n // 8]
+    reducedReducedALR_right = reducedReducedALR[: , n // 8 : n // 4]
+    xxxSequence = generateXsequence('RR', seqBases[0 : n//4])
+    plotConnectivityMatrix(reducedReducedALR_left, yLabels = seqBases)
+    plotConnectivityMatrix(reducedReducedALR_right, yLabels = seqBases)
+    xRRSequence = generateXsequence('RRx', seqBases[0 : n//4])
+    # Omer Sella: Very
+    RRRSequence = generateXsequence('RRRx', seqBases[0 : n // 8])
+    reducedReducedReducedALR = np.where(reducedReducedALR_left > reducedReducedALR_right, reducedReducedALR_left, reducedReducedALR_right)
+    plotConnectivityMatrix(reducedReducedReducedALR, yLabels = seqBases, xLabels = RRRSequence)
+    
+    fig, ax = plt.subplots(1, 4, gridspec_kw={'width_ratios': [2, 2, 2, 1]})
+    plotConnectivityMatrix(ALeft, xLabels = seqBases[0 : n//2], yLabels = seqBases, figParams = [fig, ax[0]])
+    plotConnectivityMatrix(ARight, xLabels = seqBases[n//2 : ], yLabels = seqBases, figParams = [fig, ax[1]])
+    plotConnectivityMatrix(reducedALR, xLabels = xSequence, yLabels = seqBases, figParams = [fig, ax[2]])
+    plotConnectivityMatrix(reducedReducedALR, xLabels = xxSequence, yLabels = seqBases, figParams = [fig, ax[3]])
+    ax[0].set_title('(a)', size = 40, pad = 15)
+    ax[1].set_title('(b)', size = 40, pad = 15)
+    ax[2].set_title('(c)', size = 40, pad = 15)
+    ax[3].set_title('(d)', size = 40, pad = 15)
 
 
 def reduceMatrix(inMatrix):
@@ -596,6 +610,7 @@ def getPareto():
     colors = cm.rainbow(np.linspace(0, 1, 8))
     results = scanGCValues()
     fig, ax = plt.subplots()
+    markerSize = 128
     for g in range(8):
         lows = []
         highs = []
@@ -605,11 +620,54 @@ def getPareto():
                 highs.append(h)
         if len(lows) > 0:
             text = str(g) + " reserved bits"
-            ax.scatter(lows, highs, c=colors[g], label = text)
+            ax.scatter(lows, highs, c=colors[g], label = text, s = np.ones(len(lows))*markerSize)
     ax.set_title("Pareto fronts of G-C content limits as a function of reserved bits", fontsize = 18)
     ax.set_xlabel("G-C content low limit", fontsize = 18)
     ax.set_ylabel("G-C content high limit", fontsize = 18)
     ax.set_ylim(0.92, 0.53)
+    ax.tick_params(axis="x", labelsize=18)
+    ax.tick_params(axis="y", labelsize=18)
     ax.legend(fontsize = 18)
     
     return fig, ax
+
+def multipleConstraintsGraphics():
+    fig, ax = plt.subplots(1, 4, gridspec_kw={'width_ratios': [1, 1, 1, 1]})
+    
+    
+    
+    homopolymerList = {'gcMin': 0.0, 'gcMax': 1.0, 'runLength': 6}#, 'regex1': '[ACTG][ACTG][ACTG]AA[ACTG][ACTG][ACTG]'}
+    homopolymerA, seqBinary, seqBases, V = connectivityMatrix(4, homopolymerList)
+    homopolymerCM = matplotlib.colors.ListedColormap(['white', 'red'])
+    
+    primerList = {'gcMin': 0.0, 'gcMax': 1.0, 'runLength': 10, 'regex1': 'AGCCTAG', 'regex2': 'TCGGATC', 'regex3': 'GATCCGA', 'regex4': 'CTAGGCT','regex5': 'AGCAGC', 'regex6': 'A[AGCT][AGCT][AGCT]CTAG'}
+    primerA, _, _, _ = connectivityMatrix(4, primerList)
+    primerCM = matplotlib.colors.ListedColormap(['white', 'steelblue'])
+    
+    gcList = {'gcMin': 0.15, 'gcMax': 0.85, 'runLength': 10}#, 'regex1': '[ACTG][ACTG][ACTG]AA[ACTG][ACTG][ACTG]'}
+    gcA, _, _, _ = connectivityMatrix(4, gcList)
+    gcCM = matplotlib.colors.ListedColormap(['white', 'slateblue'])
+    
+    A = np.minimum(np.minimum(homopolymerA, primerA), gcA)
+    
+    
+    
+    plotConnectivityMatrix(homopolymerA, xLabels = seqBases, yLabels = seqBases, figParams = [fig, ax[0]], colour = homopolymerCM, xSize = 20, ySize = 20, verticalSpacing = 7, horizontalSpacing = 7)
+    plotConnectivityMatrix(primerA, xLabels = seqBases, yLabels = seqBases, figParams = [fig, ax[1]], colour = primerCM, xSize = 20, ySize = 20, verticalSpacing = 7, horizontalSpacing = 7)
+    plotConnectivityMatrix(gcA, xLabels = seqBases, yLabels = seqBases, figParams = [fig, ax[2]], colour = gcCM, xSize = 20, ySize = 20, verticalSpacing = 7, horizontalSpacing = 7)
+    plotConnectivityMatrix(A, xLabels = seqBases, yLabels = seqBases, figParams = [fig, ax[3]], xSize = 20, ySize = 20, verticalSpacing = 7, horizontalSpacing = 7)
+    
+    plotConnectivityMatrix(homopolymerA, xLabels = seqBases, yLabels = seqBases, colour = homopolymerCM, xSize = 28, ySize = 28)
+    plotConnectivityMatrix(primerA, xLabels = seqBases, yLabels = seqBases, colour = primerCM, xSize = 28, ySize = 28)
+    plotConnectivityMatrix(gcA, xLabels = seqBases, yLabels = seqBases, colour = gcCM, xSize = 28, ySize = 28)
+    plotConnectivityMatrix(A, xLabels = seqBases, yLabels = seqBases, xSize = 28, ySize = 28)
+    
+    #plotConnectivityMatrix(gcA, xLabels = seqBases, yLabels = seqBases, figParams = [fig, ax[3]], colour = gcCM, alpha = 0.9)
+    #plotConnectivityMatrix(primerA, xLabels = seqBases, yLabels = seqBases, figParams = [fig, ax[3]], colour = primerCM, alpha = 0.9)
+    #plotConnectivityMatrix(homopolymerA, xLabels = seqBases, yLabels = seqBases, figParams = [fig, ax[3]], colour = homopolymerCM, alpha = 0.9)
+    ax[0].set_title('(a)', size = 40, pad = 15)
+    ax[1].set_title('(b)', size = 40, pad = 15)
+    ax[2].set_title('(c)', size = 40, pad = 15)
+    ax[3].set_title('(d)', size = 40, pad = 15)
+    
+    return A, fig, ax
