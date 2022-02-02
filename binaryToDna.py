@@ -572,6 +572,7 @@ def produceFigure4():
     ax[1].set_title('(b)', size = 40, pad = 15)
     ax[2].set_title('(c)', size = 40, pad = 15)
     ax[3].set_title('(d)', size = 40, pad = 15)
+    return xxxSequence
 
 
 def reduceMatrix(inMatrix):
