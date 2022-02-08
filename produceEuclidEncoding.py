@@ -66,15 +66,15 @@ def generateCandidates(inMatrix, connectivityDictionary, verticalSymbols, horizo
         for horizontalSymbol in newHorizontalSymbols:
             tempList = []
             for prefix in prefixes:
-                tempSymbol = prefix + suffixH
+                tempSymbol = prefix + horizontalSymbol
                 #print(verticalSymbol)
                 #print(horizontalSymbol)
                 if connectivityDictionary[verticalSymbol][tempSymbol] == 1:
                     tempList.append(prefix)
-            candidatesDictionary[verticalSymbol][suffixH] = tempList
+            candidatesDictionary[verticalSymbol][horizontalSymbol] = tempList
              
         
-    return candidatesDictionary
+    return candidatesDictionary, verticalSymbols, newHorizontalSymbols
 
 def euclidCandidatesForTheJoin():
     restrictionSite = 'GAGTC'
@@ -120,22 +120,24 @@ def euclidCandidatesForTheJoin():
 
     plotConnectivityMatrix(matrix, seqBases, seqBases, xSize = 28, ySize = 28)
     
-    candidates = generateCandidates(matrix, connectivityDictionary, seqBinary, seqBinary, ['0', '1'])
+    candidates, vSymbols, hSymbols = generateCandidates(matrix, connectivityDictionary, seqBinary, seqBinary, ['0', '1'])
     
-    return candidates, connectivityDictionary
+    return candidates, connectivityDictionary, vSymbols, hSymbols
 
-def getStats(candidates):
-    count = []
-    for key in candidates:
-        #There is only one subkey
-        for subKey in candidates[key]:
-            count.append(len(candidates[key][subKey]))
-    return count
+def getStats(candidates, verticalSymbols, horizontalSymbols):
+    countMatrix = np.zeros((len(verticalSymbols), len(horizontalSymbols)) )
+    for key in candidates.keys():
+        i = verticalSymbols.index(key)
+        for subKey in candidates[key].keys():
+            j = horizontalSymbols.index(subKey)
+            countMatrix[i,j] = len(candidates[key][subKey])
+    return countMatrix
 
-def makeFSM(candidates):
+def makeFSM(candidates, verticalSymbols, horizontalSymbols):
     #An FSM is made of:
     #states, triggers, outputTable, transitionTable, initialState
-    count = getStats(candidates)
-    states = []
-    for key in candidates:
-        states.append(key)
+    countMatrix = getStats(candidates)
+    states = verticalSymbols
+    triggers = horizontalSymbols
+    # Now comes the hard part: we need to choose an output (validPrefix + newHorizontalSymbol) for every (state, trigger) pair.
+    
