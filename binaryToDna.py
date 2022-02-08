@@ -352,13 +352,16 @@ def connectivityMatrix(symbolSize = 4, consraintList = {}):
     
     #for number, value in enumerate(sequencesBinary):
     #    print(str(number) + "  " + str(value))
-    
+    connectivityDictionaryBinary = {}
     connectivityMatrix = np.zeros((2**(symbolSize * 2), 2**(symbolSize * 2)), dtype = np.int64)
     violationsMatrix = np.zeros((2**(symbolSize * 2), 2**(symbolSize * 2)), dtype = np.int64)
     for i in range(2**(symbolSize * 2)):
+        connectivityDictionaryBinary[sequencesBinary[i]] = {}
         for j in range(2**(symbolSize * 2)):
             connectivityMatrix[i,j], violations, gcBalance = checkViolation(sequencesBases[i], sequencesBases[j], consraintList)
             violationsMatrix[i,j] = violations + gcBalance
+            connectivityDictionaryBinary[sequencesBinary[i]][sequencesBinary[j]] = connectivityMatrix[i,j]
+            
     # fig, ax = plt.subplots()
     # ax.imshow((-1 * connectivityMatrix) + 1, cmap='Greys',  interpolation = None)
     # ax.spines['top'].set_visible(False)
@@ -375,7 +378,7 @@ def connectivityMatrix(symbolSize = 4, consraintList = {}):
     # figV, axV = plt.subplots()
     # im = axV.imshow(violationsMatrix, cmap="YlGn")
     # cbar = axV.figure.colorbar(im)
-    return connectivityMatrix, sequencesBinary, sequencesBases, violationsMatrix
+    return connectivityMatrix, sequencesBinary, sequencesBases, violationsMatrix, connectivityDictionaryBinary
         
 
 
@@ -514,7 +517,7 @@ demoConstraintList = {'gcMin': 0.0, 'gcMax': 1.0, 'runLength': 10,
 def produceFigure4():
     #demoConstraintList = gcContentDemoList2#gcContentDemoList
     demoConstraintList = {'gcMin': 0.15, 'gcMax': 0.85, 'runLength': 6, 'regex1': 'AGCCTAG', 'regex2': 'TCGGATC', 'regex3': 'GATCCGA', 'regex4': 'CTAGGCT','regex5': 'AGCAGC', 'regex6': 'A[AGCT][AGCT][AGCT]CTAG'}
-    A, seqBinary, seqBases, V = connectivityMatrix(4, demoConstraintList)
+    A, seqBinary, seqBases, V, _ = connectivityMatrix(4, demoConstraintList)
 
     plotConnectivityMatrix(A, seqBases, seqBases, xSize = 28, ySize = 28)
 
@@ -638,7 +641,7 @@ def multipleConstraintsGraphics():
     
     
     homopolymerList = {'gcMin': 0.0, 'gcMax': 1.0, 'runLength': 6}#, 'regex1': '[ACTG][ACTG][ACTG]AA[ACTG][ACTG][ACTG]'}
-    homopolymerA, seqBinary, seqBases, V = connectivityMatrix(4, homopolymerList)
+    homopolymerA, seqBinary, seqBases, V, _ = connectivityMatrix(4, homopolymerList)
     homopolymerCM = matplotlib.colors.ListedColormap(['white', 'red'])
     
     primerList = {'gcMin': 0.0, 'gcMax': 1.0, 'runLength': 10, 'regex1': 'AGCCTAG', 'regex2': 'TCGGATC', 'regex3': 'GATCCGA', 'regex4': 'CTAGGCT','regex5': 'AGCAGC', 'regex6': 'A[AGCT][AGCT][AGCT]CTAG'}
