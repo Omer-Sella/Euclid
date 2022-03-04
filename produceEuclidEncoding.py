@@ -93,11 +93,56 @@ def euclidCandidatesForTheJoin():
     sp11 = 'AGTCTGAG'
     sp12 = 'GTCTGAGC'
     
-    
     endPrimer = 'CTCAGGACTCGCAACGCTGG'
+    ep0 = 'CTCAGGAC'
+    ep1 = 'TCAGGACT'
+    ep2 = 'CAGGACTC'
+    ep3 = 'AGGACTCG'
+    ep4 = 'GGACTCGC'
+    ep5 = 'GACTCGCA'
+    ep6 = 'ACTCGCAA'
+    ep7 = 'CTCGCAAC'
+    ep8 = 'TCGCAACG'
+    ep9 = 'CGCAACGC'
+    ep10 ='GCAACGCT'
+    ep11 ='CAACGCTG'
+    ep12 ='AACGCTGG'
     
-    joinConstraintList = {'gcMin': 0.2, 'gcMax': 0.80, 'runLength': 8, 
+    PARTSSUP_TABLE_ID_PRIMER = 'GCGACTGGATGACCTGACGC'
+    
+    
+    partssupPrimer0 = 'GCGACTGG'
+    partssupPrimer1 = 'CGACTGGA'
+    partssupPrimer2 = 'GACTGGAT'
+    partssupPrimer3 = 'ACTGGATG'
+    partssupPrimer4 = 'CTGGATGA'
+    partssupPrimer5 = 'TGGATGAC'
+    partssupPrimer6 = 'GACCTGAC'
+    partssupPrimer7 = 'ACCTGACG'
+    partssupPrimer8 = 'CCTGACGC'
+    
+    
+    
+    PARTS_TABLE_ID_PRIMER = 'GCAGACCGGAGACCTGTCGG'
+    
+    partsPrimer0 = 'GCAGACCG'
+    partsPrimer1 = 'CAGACCGG'
+    partsPrimer2 = 'AGACCGGA'
+    partsPrimer3 = 'GACCGGAG'
+    partsPrimer4 = 'ACCGGAGA'
+    partsPrimer5 = 'CCGGAGAC'
+    partsPrimer6 = 'CGGAGACC'
+    partsPrimer7 = 'GGAGACCT'
+    partsPrimer8 = 'GAGACCTG'
+    partsPrimer9 = 'AGACCTGT'
+    partsPrimer10 = 'GACCTGTC'
+    partsPrimer11 = 'ACCTGTCG'
+    partsPrimer12 = 'CCTGTCGG'
+    
+    
+    joinConstraintList = {'gcMin': 0.25, 'gcMax': 0.65, 'runLength': 8, 
                       'regex1': 'GAGTC',
+                      # Restriction site GAGTC is specifc, i.e.: the enzyme recognizes it exactly.
                       #'regex2': '[ACTG]AGTC',
                       #'regex3': 'G[ACTG]GTC',
                       #'regex4': 'GA[ACTG]TC',
@@ -115,7 +160,47 @@ def euclidCandidatesForTheJoin():
                       'regex16': sp9,
                       'regex17': sp10,
                       'regex18': sp11,
-                      'regex19': sp12}#,
+                      'regex19': sp12,
+                      
+                      'regex20': ep0,
+                      'regex21': ep1,
+                      'regex22': ep2,
+                      'regex23': ep3,
+                      'regex24': ep4,
+                      'regex25': ep5,
+                      'regex26': ep6,
+                      'regex27': ep7,
+                      'regex28': ep8,
+                      'regex29': ep9,
+                      'regex30': ep10,
+                      'regex31': ep11,
+                      'regex32': ep12,
+                      
+                      'regex33': partssupPrimer0,
+                      'regex34': partssupPrimer1,
+                      'regex35': partssupPrimer2,
+                      'regex36': partssupPrimer3,
+                      'regex37': partssupPrimer4,
+                      'regex38': partssupPrimer5,
+                      'regex39': partssupPrimer6,
+                      'regex40': partssupPrimer7,
+                      'regex41': partssupPrimer8,
+                      
+                      'regex42': partsPrimer0,
+                      'regex43': partsPrimer1,
+                      'regex44': partsPrimer2,
+                      'regex45': partsPrimer3,
+                      'regex46': partsPrimer4,
+                      'regex47': partsPrimer5,
+                      'regex48': partsPrimer6,
+                      'regex49': partsPrimer7,
+                      'regex50': partsPrimer8,
+                      'regex51': partsPrimer9,
+                      'regex52': partsPrimer10,
+                      'regex53': partsPrimer11,
+                      'regex54': partsPrimer12
+                      }#,
+    
     matrix, seqBinary, seqBases, V, connectivityDictionary = connectivityMatrix(4, joinConstraintList)
 
     plotConnectivityMatrix(matrix, seqBases, seqBases, xSize = 28, ySize = 28)
@@ -133,11 +218,37 @@ def getStats(candidates, verticalSymbols, horizontalSymbols):
             countMatrix[i,j] = len(candidates[key][subKey])
     return countMatrix
 
-def makeFSM(candidates, verticalSymbols, horizontalSymbols):
+def makeFSM(candidates, verticalSymbols, horizontalSymbols, mechanism):
     #An FSM is made of:
     #states, triggers, outputTable, transitionTable, initialState
-    countMatrix = getStats(candidates)
+    countMatrix = getStats(candidates, verticalSymbols, horizontalSymbols)
     states = verticalSymbols
     triggers = horizontalSymbols
     # Now comes the hard part: we need to choose an output (validPrefix + newHorizontalSymbol) for every (state, trigger) pair.
+    outputDictionary = {}
+    for vs in verticalSymbols:
+        outputDictionary[vs] = {}
+        for hs in horizontalSymbols:
+            outputDictionary[vs][hs] = mechanism(vs, candidates[vs][hs], hs)
+            
+    return countMatrix, outputDictionary
+
+
+def minimiseReservedValue(a,candidatesList,c):
+    candidatesAsInt = np.zeros(len(candidatesList))
+    for i in range(len(candidatesList)):
+        candidatesAsInt[i] = int(candidatesList[i], 2)
+    return candidatesList[(np.argmin(candidatesAsInt))]
+
+def minimiseLeftRightMagnitude(a, candidatesList, c):
+    aInt = int(a, 2)
+    candidatesAndCAsInt = np.zeros(len(candidatesList))
+    for i in range(len(candidatesList)):
+        candidatesAndCAsInt[i] = int((candidatesList[i] + c), 2)
+    difference = np.abs(candidatesAndCAsInt - aInt)
+    return candidatesList[np.argmin(difference)]
+
+def testEuclid():
+    c, cd, vsym, hsym = euclidCandidatesForTheJoin()
+    numberOfPossibleCandidatesCountMatrix, outputDictionary = makeFSM(c, vsym, hsym, minimiseReservedValue)
     
