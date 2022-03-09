@@ -11,11 +11,13 @@ Created on Tue Jan 25 10:10:30 2022
 # if projectDir == None:
 #     projectDir = "E:/Euclid"
 # sys.path.insert(1, projectDir)
+from numpy.core.fromnumeric import argmin
 from binaryToDna import reduceMatrix, connectivityMatrix, plotConnectivityMatrix
 import copy
 from itertools import combinations_with_replacement
 import numpy as np
-
+import mapping
+import re
 
 # def isFullyConnected(matrix):
 #     result = (np.sum(matrix) == matrix.size)
@@ -140,7 +142,7 @@ def euclidCandidatesForTheJoin():
     partsPrimer12 = 'CCTGTCGG'
     
     
-    joinConstraintList = {'gcMin': 0.25, 'gcMax': 0.65, 'runLength': 8, 
+    joinConstraintList = {'gcMin': 0.35, 'gcMax': 0.65, 'runLength': 8, 
                       'regex1': 'GAGTC',
                       # Restriction site GAGTC is specifc, i.e.: the enzyme recognizes it exactly.
                       #'regex2': '[ACTG]AGTC',
@@ -222,16 +224,21 @@ def makeFSM(candidates, verticalSymbols, horizontalSymbols, mechanism):
     #An FSM is made of:
     #states, triggers, outputTable, transitionTable, initialState
     countMatrix = getStats(candidates, verticalSymbols, horizontalSymbols)
-    states = verticalSymbols
-    triggers = horizontalSymbols
+    #states = verticalSymbols
+    #triggers = horizontalSymbols
     # Now comes the hard part: we need to choose an output (validPrefix + newHorizontalSymbol) for every (state, trigger) pair.
     outputDictionary = {}
+    outputFSM = {}
     for vs in verticalSymbols:
         outputDictionary[vs] = {}
+        outputFSM[vs] = {}
         for hs in horizontalSymbols:
-            outputDictionary[vs][hs] = mechanism(vs, candidates[vs][hs], hs)
+            output = mechanism(vs, candidates[vs][hs], hs)
+            #print(output)
+            outputDictionary[vs][hs] = output
+            outputFSM[vs][hs] = output + hs
             
-    return countMatrix, outputDictionary
+    return countMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols
 
 
 def minimiseReservedValue(a,candidatesList,c):
@@ -248,7 +255,31 @@ def minimiseLeftRightMagnitude(a, candidatesList, c):
     difference = np.abs(candidatesAndCAsInt - aInt)
     return candidatesList[np.argmin(difference)]
 
+def trackGClevel(a, candidateList, c, gcLevel = 0.5):
+    gcCount = np.zeros(len(candidateList))
+    for i in range(len(candidateList)):
+        binaryWord = a + candidateList[i] + c
+        #print("*** debugging ...")
+        #print(binaryWord)
+        dnaWord = mapping.binaryStreamToBases(binaryWord)
+        #print(dnaWord)
+        #print(len(dnaWord))
+        #print(len(re.findall('G', dnaWord)))
+        #print(len(re.findall('C', dnaWord)))
+        gcContent = (len(re.findall('G', dnaWord)) + len(re.findall('C', dnaWord))) / len(dnaWord)
+        #print(gcContent)
+        gcCount[i] = gcContent
+    bestIndex = argmin(np.abs(gcCount - gcLevel))
+    return candidateList[bestIndex]
+
+
+
 def testEuclid():
     c, cd, vsym, hsym = euclidCandidatesForTheJoin()
-    numberOfPossibleCandidatesCountMatrix, outputDictionary = makeFSM(c, vsym, hsym, minimiseReservedValue)
+    #numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols = makeFSM(c, vsym, hsym, minimiseReservedValue)
+    numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols = makeFSM(c, vsym, hsym, trackGClevel)
+    return numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols
+
+if __name__ == '__main__':
+    numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols = testEuclid()
     
