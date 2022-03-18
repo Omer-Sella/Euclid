@@ -39,7 +39,9 @@ class FSM():
         self.presentStateCoordinate = initialState
         
     def checkStreamLength(self, length):
+        #print("*** DEBUG: " + str(length))
         result = False
+        #print(length % self.stepSize)
         if length % self.stepSize == 0:
             result = 'OK'
         return result
@@ -117,6 +119,7 @@ def FSMEncoder(streamIn, FSM, graphics = False):
     but we do verify that the stream of symbols could be chopped into an integer number of triggers.
     For example: if the stream is made of bits, and we need 5 bits per trigger, then the stream has to have length = 5*k for some k.
     """
+    #print("*** debug: " + str(len(streamIn)))
     assert FSM.checkStreamLength(len(streamIn)) == 'OK' , "Input to convolutional encoder must be an integer multiple of FSM.stepSize"
     numberOfSteps = len(streamIn) // FSM.stepSize
     i = 0
@@ -139,6 +142,7 @@ def FSMdictionaryEncoder(streamIn, FSM, graphics = False):
     but we do verify that the stream of symbols could be chopped into an integer number of triggers.
     For example: if the stream is made of bits, and we need 5 bits per trigger, then the stream has to have length = 5*k for some k.
     """
+    #print("*** debug: streamIn length is: " + str(len(streamIn)))
     assert FSM.checkStreamLength(len(streamIn)) == 'OK' , "Input to convolutional encoder must be an integer multiple of FSM.stepSize"
     numberOfSteps = len(streamIn) // FSM.stepSize
     i = 0
@@ -541,7 +545,7 @@ def exampleOneThirdConvolutional():
     return stream, encodedStream, flatStream, corruptStream, mostLikelyPaths, scoreVector, numberOfEquallyLikelyPathsVector, pathsWithFlagging, indelFlag, indelEstimatedLocation
 
 
-def makeEuclidFSM(horizontalSymbols, verticalSymbols, outputFSM, initState = '00000000'):
+def makeEuclidFSM(verticalSymbols, horizontalSymbols, outputFSM, initState = '00000000'):
     euclidFSM = FSM(verticalSymbols, horizontalSymbols, outputFSM, outputFSM, initState)
     return euclidFSM
 

@@ -10,6 +10,7 @@ import math
 import copy
 import matplotlib.cm as cm
 import matplotlib.colors
+import xlsxwriter
 
 def binaryPlusOne(operand):
     """
@@ -71,14 +72,22 @@ def byteToBases(inputByte, numOfBits = 8):
             fourNuceleotides = 'bad'
     return fourNuceleotides
 
-def binaryToDna(inputFilename, lineLength, outputFilename = None):
+def binaryToDna(inputFilename, lineLength, outputFilename = None, format = 'IDT'):
+    
     if lineLength % 4 != 0:
         actualLineLenghth = lineLength + (4 - lineLength % 4)
     else:
         actualLineLenghth = lineLength
+    
+    
+    
     with open(outputFilename, "w") as outFile:
         with open(inputFilename, "rb") as inFile:
-            line = ""
+            sequenceNumber = 0
+            if format == 'IDT':
+                line = "seq" + str(sequenceNumber) + "\t"
+            else:
+                line = ""
             lineCounter = 0
             byte = inFile.read(1)
             while byte != b"":
@@ -90,9 +99,15 @@ def binaryToDna(inputFilename, lineLength, outputFilename = None):
                 
                 lineCounter = lineCounter + 4
                 if lineCounter == actualLineLenghth:
+                    print(lineCounter)
+                    print(len(line))
                     line = line + "\n"
                     outFile.write(line)
-                    line = ""
+                    sequenceNumber = sequenceNumber + 1
+                    if format == 'IDT':
+                        line = "seq" + str(sequenceNumber) + "\t"
+                    else:
+                        line = ""
                     lineCounter = 0
                 # Read new byte
                 byte = inFile.read(1)

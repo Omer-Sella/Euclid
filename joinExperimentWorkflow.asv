@@ -1,0 +1,70 @@
+%% This script ASSUMES that you have two tables:
+% 1. partsTable with a key named partKey
+% 2. partssupTable with a key named partKey
+
+joinedData = innerjoin(partsTable, partssupTable, 'Keys', {'partKey'});
+
+
+%% Now we generate reduced tables
+% The reduced tables contain only some of the columns in the original
+% tables
+reducedPartssupTable = table;
+reducedPartsTable = table;
+
+% Take just the partKey, suppKey, availQTY
+reducedPartssupTable.partKey = partssupTable.partKey;
+reducedPartssupTable.suppKey = partssupTable.suppKey;
+reducedPartssupTable.availQTY = partssupTable.availQTY;
+
+% Take just the partKey, MFGR, Brand and Size
+reducedPartsTable.partKey = partsTable.partKey;
+reducedPartsTable.MFGR = partsTable.MFGR;
+reducedPartsTable.Brand = partsTable.Brand;
+reducedPartsTable.Size = partsTable.Size;
+
+%Next we need to get maximum values to make sure 
+maximumPartKey = max(max(reducedPartsTable.partKey), max(reducedPartssupTable.partKey));
+maximumMFGR = max(reducedPartsTable.MFGR);
+maximumBrand = max(reducedPartsTable.Brand);
+maximumSize = max(reducedPartsTable.Size);
+maximumSuppKey = max(reducedPartssupTable.suppKey);
+maximumAvailableQTY = max(reducedPartssupTable.availQTY);
+
+partKeyFieldLength = length(dec2base(maximumPartKey, 4));
+mfgrFieldLength = length(dec2base(maximumMFGR, 4));
+brandFieldLength = length(dec2base(maximumBrand, 4));
+sizeFieldLength = length(dec2base(maximumSize, 4));
+suppKeyFieldLength = length(dec2base(maximumSuppKey, 4));
+availableQTYFieldLength = length(dec2base(maximumAvailableQTY, 4));
+
+partsTableDNA = table;
+partsTableDNA.partKey = strBase4ToDNA(dec2base(reducedPartsTable.partKey, 4, partKeyFieldLength));
+partsTableDNA.MFGR = strBase4ToDNA(dec2base(reducedPartsTable.MFGR, 4, mfgrFieldLength));
+partsTableDNA.Brand = strBase4ToDNA(dec2base(reducedPartsTable.Brand, 4, brandFieldLength));
+partsTableDNA.Size = strBase4ToDNA(dec2base(reducedPartsTable.Size, 4, sizeFieldLength));
+
+partssupTableDNA = table;
+partssupTableDNA.partKey = strBase4ToDNA(dec2base(reducedPartssupTable.partKey, 4, partKeyFieldLength));
+partssupTableDNA.suppKey = strBase4ToDNA(dec2base(reducedPartssupTable.suppKey, 4, suppKeyFieldLength));
+partssupTableDNA.availQTY = strBase4ToDNA(dec2base(reducedPartssupTable.availQTY, 4, availableQTYFieldLength));
+
+%% Now add row numbers to partsTableDNA
+[rows, columns] = size(partsTableDNA);
+rowsFieldLength = length(dec2base(rows, 4));
+indexColumn = 1:1:rows;
+indexColumn = indexColumn';
+partsTableDNA.index = strBase4ToDNA(dec2base(indexColumn, 4, rowsFieldLength));
+
+%% Now add row numbers to partssupTableDNA
+[rows, columns] = size(partssupTableDNA);
+rowsFieldLength = length(dec2base(rows, 4));
+indexColumn = 1:1:rows;
+indexColumn = indexColumn';
+partssupTableDNA.index = strBase4ToDNA(dec2base(indexColumn, 4, rowsFieldLength));
+
+%% Write DNA tables to file
+partsArrayDNA = table2array(partsTableDNA);
+writematrix(partsArrayDNA, "partsDNA.txt");
+
+partssupArrayDNA = table2array(partssupTableDNA);
+writematrix(partssupArrayDNA, "partssupDNA.txt");

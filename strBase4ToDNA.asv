@@ -1,0 +1,25 @@
+function [DNAString] = strBase4ToDNA(input)
+
+% input is a string of numbers, with each digit in the set {0,1,2,3}, i.e.:
+% It is a base 4 number represented as a string.
+% No safety
+% violation
+% [0;0] --> 0 == A
+% [1;0] --> 1 == C
+% [0;1] --> 2 == T
+% [1;1] --> 3 == G
+A = 65;
+C = 67;
+G = 71;
+T = 84;
+
+maskA = input == '0';
+maskC = input == '1';
+maskT = input == '2';
+maskG = input == '3';
+
+result = maskA .* A + maskC .* C + maskT .* T + maskG .* G;
+DNAString = char(result);
+
+end
+

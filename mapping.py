@@ -69,9 +69,16 @@ def byteToBases(inputByte, numOfBits = 8):
         
     return nuceleotideStream
 
+ 
+def byte2binary(byte, numOfBits = 8):
+    bitStream = (bin(int(byte.hex(), 16))[2:]).zfill(numOfBits)
+    return bitStream
 
-def binaryStreamToBases(bitStream):
+
+def binaryStreamToBases(bitStream, numOfBits = 8):
     nuceleotideStream = ""
+    if type(bitStream) != str:
+        bitStream = (bin(int(bitStream.hex(), 16))[2:]).zfill(numOfBits)
     numOfBits = len(bitStream)
     for i in range(numOfBits // 2):
         twoBits = bitStream[2 * i : 2 * i + 2]
@@ -144,6 +151,29 @@ def produceStatsFromDnaFile(inputFilename, userSubSequences = None):
     print(occurences)
     return subSequences, occurences
 
+
+def produceStatsFromDnaStream(inputStream, userSubSequences = None):
+    basePairs = ['A','T','C','G']
+    subSequences = []
+    for c0 in basePairs:
+        subSequences = subSequences + [c0]
+    for c0 in basePairs:
+        for c1 in basePairs:
+            subSequences = subSequences + [c0 + c1]
+    for c0 in basePairs:
+        for c1 in basePairs:
+            for c2 in basePairs:
+                subSequences = subSequences + [c0 + c1 + c2]
+    if userSubSequences != None:
+        subSequences = subSequences + userSubSequences
+    occurences = np.zeros(len(subSequences), dtype = np.int32)
+    print(subSequences)
+    for s in range(len(subSequences)):
+        allMatches = re.findall(subSequences[s], inputStream)
+        occurences[s] = occurences[s] + len(allMatches)
+    print(occurences)
+    return subSequences, occurences
+
 """
 sub = ['A', 'T', 'C', 'G', 'AA', 'AT', 'AC', 'AG', 'TA', 'TT', 'TC', 'TG', 'CA', 'CT', 'CC', 'CG', 'GA', 'GT', 'GC', 'GG', 'AAA', 'AAT', 'AAC', 'AAG', 'ATA', 'ATT', 'ATC', 'ATG', 'ACA', 'ACT', 'ACC', 'ACG', 'AGA', 'AGT', 'AGC', 'AGG', 'TAA', 'TAT', 'TAC', 'TAG', 'TTA', 'TTT', 'TTC', 'TTG', 'TCA', 'TCT', 'TCC', 'TCG', 'TGA', 'TGT', 'TGC', 'TGG', 'CAA', 'CAT', 'CAC', 'CAG', 'CTA', 'CTT', 'CTC', 'CTG', 'CCA', 'CCT', 'CCC', 'CCG', 'CGA', 'CGT', 'CGC', 'CGG', 'GAA', 'GAT', 'GAC', 'GAG', 'GTA', 'GTT', 'GTC', 'GTG', 'GCA', 'GCT', 'GCC', 'GCG', 'GGA', 'GGT', 'GGC', 'GGG']
 occ = np.array([1774547, 1629353, 1351267, 1628193,  377500,  419691,  415585,
@@ -183,7 +213,9 @@ def subSequenceGraphics(subSequences, occurances):
         #print(relevantSum)
         #print(doubles[4 * i : 4 * (i + 1)])
         #print(singlesNormed[i])
-        vector = singlesNormed[i] * doubles[4 * i : 4 * (i + 1)] / relevantSum 
+        #BUG
+        #Cheasy bug fix - in case relevantSum is 0
+        vector = singlesNormed[i] * doubles[4 * i : 4 * (i + 1)] / (1 + relevantSum )
         #print(vector)
         doublesNormed[4 * i : 4 * (i + 1)] = vector #singlesNormed[i] * doublesNormed[4 * i : 4 * (i + 1)] / relevantSum
         #print(doublesNormed[4 * i : 4 * (i + 1)])
@@ -192,10 +224,12 @@ def subSequenceGraphics(subSequences, occurances):
     
     for i in range(16):
         relevantSum = np.sum(triplets[4 * i : 4 * (i + 1)])
-        #print(relevantSum)
+        print(relevantSum)
         #print(doubles[4 * i : 4 * (i + 1)])
         #print(singlesNormed[i])
-        vector = doublesNormed[i] * triplets[4 * i : 4 * (i + 1)] / relevantSum 
+        #BUG
+        #Cheasy bug fix - in case relevantSum is 0
+        vector = doublesNormed[i] * triplets[4 * i : 4 * (i + 1)] / (1 + relevantSum ) 
         #print(vector)
         tripletsNormed[4 * i : 4 * (i + 1)] = vector #singlesNormed[i] * doublesNormed[4 * i : 4 * (i + 1)] / relevantSum
         #print(doublesNormed[4 * i : 4 * (i + 1)])
