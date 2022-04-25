@@ -97,7 +97,7 @@ def binaryStreamToBases(bitStream, numOfBits = 8):
             nuceleotideStream = nuceleotideStream + nuceleotide
         else:
             nuceleotideStream = 'bad'
-        
+                
     return nuceleotideStream
 
 def binaryToDna(inputFilename, lineLength, outputFilename = None):
@@ -279,42 +279,40 @@ def subSequenceGraphics(subSequences, occurances):
     plt.show()
 
 
-def dnaToBinary(input, outputFileName = None):
+def dnaToBinary(inputStream, outputFile = None):
     """
     sample input ACTGAAACCTGA
-    Convert DNA text into binary. If outputFileName is given save to file.
+    Convert DNA text into binary.
     input is assumed to be a list object so input[i] is a DNA strand, and input[i][j] is the j'th nucleotide of strand i.
     """
     status = 'OK'
-    binaryLinesText = []
-    binaryLinesNumerical = []
-    
-    for strand in input:
-        newBinarySequence = []
-        newBinaryArray = np.zeros(len(2 * strand))
-        idx = 0
-        for nucleotide in strand:
-            if nucleotide == 'A':
-                bitPairText = '00'
-                bitPairNumerical = np.array([0,0])
-            elif nucleotide == 'C':
-                bitPairText = '01'
-                bitPairNumerical = np.array([0,1])
-            elif nucleotide == 'T':
-                bitPairText = '11'
-                bitPairNumerical = np.array([1,1])
-            elif nucleotide == 'G':
-                bitPairText = '10'
-                bitPairNumerical = np.array([1,0])
-            else:
-                bitPair = 'BAD_NUCLEOTIDE_ENCOUNTERED'
-                status = 'FAIL'
-            newBinarySequence.append(bitPairText)
-            newBinaryArray[idx : idx + 2] = bitPairNumerical
-            idx = idx + 2
-        binaryLinesText.append(newBinarySequence)
-        binaryLinesNumerical.append(newBinaryArray)
-        if outputFilename is not None:
-            with open(outputFileName, "a+") as fid:
-                fid.write(binarySequence + "\n")
-    return status, binaryLinesText, binaryLinesNumerical
+    newBinarySequence = ''
+    newBinaryArray = np.zeros(2 * len(inputStream))
+    idx = 0
+    for nucleotide in inputStream:
+        if nucleotide == 'A':
+            bitPairText = '00'
+            bitPairNumerical = np.array([0,0])
+        elif nucleotide == 'C':
+            bitPairText = '01'
+            bitPairNumerical = np.array([0,1])
+        elif nucleotide == 'T':
+            bitPairText = '11'
+            bitPairNumerical = np.array([1,1])
+        elif nucleotide == 'G':
+            bitPairText = '10'
+            bitPairNumerical = np.array([1,0])
+        elif nucleotide == '\n':
+            bitPairText = '\n'
+            bitPairNumerical = np.array([2,2])
+        else:
+            bitPairText = 'BAD_NUCLEOTIDE_ENCOUNTERED'
+            bitPairNumerical = np.array([2,2])
+            status = 'FAIL'
+        newBinarySequence = newBinarySequence + bitPairText
+        newBinaryArray[idx : idx + 2] = bitPairNumerical
+        idx = idx + 2
+        if outputFile != None:
+            with open(outputFile, "a+") as fid:
+                fid.write(newBinarySequence + "\n")
+    return status, newBinarySequence, newBinaryArray

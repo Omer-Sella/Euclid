@@ -368,8 +368,8 @@ def connectivityMatrix(symbolSize = 4, consraintList = {}):
     #for number, value in enumerate(sequencesBinary):
     #    print(str(number) + "  " + str(value))
     connectivityDictionaryBinary = {}
-    connectivityMatrix = np.zeros((2**(symbolSize * 2), 2**(symbolSize * 2)), dtype = np.int64)
-    violationsMatrix = np.zeros((2**(symbolSize * 2), 2**(symbolSize * 2)), dtype = np.int64)
+    connectivityMatrix = np.zeros((2**(symbolSize * 2), 2**(symbolSize * 2)), dtype = np.int8)
+    violationsMatrix = np.zeros((2**(symbolSize * 2), 2**(symbolSize * 2)), dtype = np.int8)
     for i in range(2**(symbolSize * 2)):
         connectivityDictionaryBinary[sequencesBinary[i]] = {}
         for j in range(2**(symbolSize * 2)):

@@ -78,132 +78,144 @@ def generateCandidates(inMatrix, connectivityDictionary, verticalSymbols, horizo
         
     return candidatesDictionary, verticalSymbols, newHorizontalSymbols
 
-def euclidCandidatesForTheJoin():
-    restrictionSite = 'GAGTC'
-    startPrimer = 'GAACCGTGCCGAGTCTGAGC'
-    sp0 = 'GAACCGTG'
-    sp1 = 'AACCGTGC'
-    sp2 = 'ACCGTGCC'
-    sp3 = 'CCGTGCCG'
-    sp4 = 'CGTGCCGA'
-    sp5 = 'GTGCCGAG'
-    sp6 = 'TGCCGAGT'
-    sp7 = 'GCCGAGTC'
-    sp8 = 'CCGAGTCT'
-    sp9 = 'CGAGTCTG'
-    sp10 = 'GAGTCTGA'
-    sp11 = 'AGTCTGAG'
-    sp12 = 'GTCTGAGC'
+def euclidCandidatesForTheJoin(constraintList = None, symbolSize = None):
+    if constraintList == None:
+        symbolSize = 4
+        restrictionSite = 'GAGTC'
+        startPrimer = 'GAACCGTGCCGAGTCTGAGC'
+        sp0 = 'GAACCGTG'
+        sp1 = 'AACCGTGC'
+        sp2 = 'ACCGTGCC'
+        sp3 = 'CCGTGCCG'
+        sp4 = 'CGTGCCGA'
+        sp5 = 'GTGCCGAG'
+        sp6 = 'TGCCGAGT'
+        sp7 = 'GCCGAGTC'
+        sp8 = 'CCGAGTCT'
+        sp9 = 'CGAGTCTG'
+        sp10 = 'GAGTCTGA'
+        sp11 = 'AGTCTGAG'
+        sp12 = 'GTCTGAGC'
+        
+        endPrimer = 'CTCAGGACTCGCAACGCTGG'
+        ep0 = 'CTCAGGAC'
+        ep1 = 'TCAGGACT'
+        ep2 = 'CAGGACTC'
+        ep3 = 'AGGACTCG'
+        ep4 = 'GGACTCGC'
+        ep5 = 'GACTCGCA'
+        ep6 = 'ACTCGCAA'
+        ep7 = 'CTCGCAAC'
+        ep8 = 'TCGCAACG'
+        ep9 = 'CGCAACGC'
+        ep10 ='GCAACGCT'
+        ep11 ='CAACGCTG'
+        ep12 ='AACGCTGG'
+        
+        PARTSSUP_TABLE_ID_PRIMER = 'GCGACTGGATGACCTGACGC'
+        
+        
+        partssupPrimer0 = 'GCGACTGG'
+        partssupPrimer1 = 'CGACTGGA'
+        partssupPrimer2 = 'GACTGGAT'
+        partssupPrimer3 = 'ACTGGATG'
+        partssupPrimer4 = 'CTGGATGA'
+        partssupPrimer5 = 'TGGATGAC'
+        partssupPrimer6 = 'GGATGACC'
+        partssupPrimer7 = 'GATGACCT'
+        partssupPrimer8 =  'ATGACCTG'
+        partssupPrimer9 =  'TGACCTGA'
+        partssupPrimer10 = 'GACCTGAC'
+        partssupPrimer11 = 'ACCTGACG'
+        partssupPrimer12 = 'CCTGACGC'
+
+        
+        
+        
+        PARTS_TABLE_ID_PRIMER = 'GCAGACCGGAGACCTGTCGG'
+        
+        partsPrimer0 = 'GCAGACCG'
+        partsPrimer1 = 'CAGACCGG'
+        partsPrimer2 = 'AGACCGGA'
+        partsPrimer3 = 'GACCGGAG'
+        partsPrimer4 = 'ACCGGAGA'
+        partsPrimer5 = 'CCGGAGAC'
+        partsPrimer6 = 'CGGAGACC'
+        partsPrimer7 = 'GGAGACCT'
+        partsPrimer8 = 'GAGACCTG'
+        partsPrimer9 = 'AGACCTGT'
+        partsPrimer10 = 'GACCTGTC'
+        partsPrimer11 = 'ACCTGTCG'
+        partsPrimer12 = 'CCTGTCGG'
+        
+        
+        constraintList = {'gcMin': 0.35, 'gcMax': 0.65, 'runLength': 8, 
+                          'regex1': 'GAGTC',
+                          # Restriction site GAGTC is specifc, i.e.: the enzyme recognizes it exactly.
+                          #'regex2': '[ACTG]AGTC',
+                          #'regex3': 'G[ACTG]GTC',
+                          #'regex4': 'GA[ACTG]TC',
+                          #'regex5': 'GAG[ACTG]C',
+                          #'regex6': 'GAGT[ACTG]',
+                          'regex7': sp0,
+                          'regex8': sp1,
+                          'regex9': sp2,
+                          'regex10': sp3,
+                          'regex11': sp4,
+                          'regex12': sp5,
+                          'regex13': sp6,
+                          'regex14': sp7,
+                          'regex15': sp8,
+                          'regex16': sp9,
+                          'regex17': sp10,
+                          'regex18': sp11,
+                          'regex19': sp12,
+                          
+                          'regex20': ep0,
+                          'regex21': ep1,
+                          'regex22': ep2,
+                          'regex23': ep3,
+                          'regex24': ep4,
+                          'regex25': ep5,
+                          'regex26': ep6,
+                          'regex27': ep7,
+                          'regex28': ep8,
+                          'regex29': ep9,
+                          'regex30': ep10,
+                          'regex31': ep11,
+                          'regex32': ep12,
+                          
+                          'regex33': partssupPrimer0,
+                          'regex34': partssupPrimer1,
+                          'regex35': partssupPrimer2,
+                          'regex36': partssupPrimer3,
+                          'regex37': partssupPrimer4,
+                          'regex38': partssupPrimer5,
+                          'regex39': partssupPrimer6,
+                          'regex40': partssupPrimer7,
+                          'regex41': partssupPrimer8,
+                          'regex42': partssupPrimer5,
+                          'regex43': partssupPrimer6,
+                          'regex44': partssupPrimer7,
+                          'regex45': partssupPrimer8,
+                          
+                          
+                          'regex46': partsPrimer4,
+                          'regex47': partsPrimer5,
+                          'regex48': partsPrimer6,
+                          'regex49': partsPrimer7,
+                          'regex50': partsPrimer8,
+                          'regex51': partsPrimer9,
+                          'regex52': partsPrimer10,
+                          'regex53': partsPrimer11,
+                          'regex54': partsPrimer12,
+                          'regex55': partsPrimer0,
+                          'regex56': partsPrimer1,
+                          'regex57': partsPrimer2,
+                          'regex58': partsPrimer3
+                          }#,
     
-    endPrimer = 'CTCAGGACTCGCAACGCTGG'
-    ep0 = 'CTCAGGAC'
-    ep1 = 'TCAGGACT'
-    ep2 = 'CAGGACTC'
-    ep3 = 'AGGACTCG'
-    ep4 = 'GGACTCGC'
-    ep5 = 'GACTCGCA'
-    ep6 = 'ACTCGCAA'
-    ep7 = 'CTCGCAAC'
-    ep8 = 'TCGCAACG'
-    ep9 = 'CGCAACGC'
-    ep10 ='GCAACGCT'
-    ep11 ='CAACGCTG'
-    ep12 ='AACGCTGG'
-    
-    PARTSSUP_TABLE_ID_PRIMER = 'GCGACTGGATGACCTGACGC'
-    
-    
-    partssupPrimer0 = 'GCGACTGG'
-    partssupPrimer1 = 'CGACTGGA'
-    partssupPrimer2 = 'GACTGGAT'
-    partssupPrimer3 = 'ACTGGATG'
-    partssupPrimer4 = 'CTGGATGA'
-    partssupPrimer5 = 'TGGATGAC'
-    partssupPrimer6 = 'GACCTGAC'
-    partssupPrimer7 = 'ACCTGACG'
-    partssupPrimer8 = 'CCTGACGC'
-    
-    
-    
-    PARTS_TABLE_ID_PRIMER = 'GCAGACCGGAGACCTGTCGG'
-    
-    partsPrimer0 = 'GCAGACCG'
-    partsPrimer1 = 'CAGACCGG'
-    partsPrimer2 = 'AGACCGGA'
-    partsPrimer3 = 'GACCGGAG'
-    partsPrimer4 = 'ACCGGAGA'
-    partsPrimer5 = 'CCGGAGAC'
-    partsPrimer6 = 'CGGAGACC'
-    partsPrimer7 = 'GGAGACCT'
-    partsPrimer8 = 'GAGACCTG'
-    partsPrimer9 = 'AGACCTGT'
-    partsPrimer10 = 'GACCTGTC'
-    partsPrimer11 = 'ACCTGTCG'
-    partsPrimer12 = 'CCTGTCGG'
-    
-    
-    joinConstraintList = {'gcMin': 0.35, 'gcMax': 0.65, 'runLength': 8, 
-                      'regex1': 'GAGTC',
-                      # Restriction site GAGTC is specifc, i.e.: the enzyme recognizes it exactly.
-                      #'regex2': '[ACTG]AGTC',
-                      #'regex3': 'G[ACTG]GTC',
-                      #'regex4': 'GA[ACTG]TC',
-                      #'regex5': 'GAG[ACTG]C',
-                      #'regex6': 'GAGT[ACTG]',
-                      'regex7': sp0,
-                      'regex8': sp1,
-                      'regex9': sp2,
-                      'regex10': sp3,
-                      'regex11': sp4,
-                      'regex12': sp5,
-                      'regex13': sp6,
-                      'regex14': sp7,
-                      'regex15': sp8,
-                      'regex16': sp9,
-                      'regex17': sp10,
-                      'regex18': sp11,
-                      'regex19': sp12,
-                      
-                      'regex20': ep0,
-                      'regex21': ep1,
-                      'regex22': ep2,
-                      'regex23': ep3,
-                      'regex24': ep4,
-                      'regex25': ep5,
-                      'regex26': ep6,
-                      'regex27': ep7,
-                      'regex28': ep8,
-                      'regex29': ep9,
-                      'regex30': ep10,
-                      'regex31': ep11,
-                      'regex32': ep12,
-                      
-                      'regex33': partssupPrimer0,
-                      'regex34': partssupPrimer1,
-                      'regex35': partssupPrimer2,
-                      'regex36': partssupPrimer3,
-                      'regex37': partssupPrimer4,
-                      'regex38': partssupPrimer5,
-                      'regex39': partssupPrimer6,
-                      'regex40': partssupPrimer7,
-                      'regex41': partssupPrimer8,
-                      
-                      'regex42': partsPrimer0,
-                      'regex43': partsPrimer1,
-                      'regex44': partsPrimer2,
-                      'regex45': partsPrimer3,
-                      'regex46': partsPrimer4,
-                      'regex47': partsPrimer5,
-                      'regex48': partsPrimer6,
-                      'regex49': partsPrimer7,
-                      'regex50': partsPrimer8,
-                      'regex51': partsPrimer9,
-                      'regex52': partsPrimer10,
-                      'regex53': partsPrimer11,
-                      'regex54': partsPrimer12
-                      }#,
-    
-    matrix, seqBinary, seqBases, V, connectivityDictionary = connectivityMatrix(4, joinConstraintList)
+    matrix, seqBinary, seqBases, V, connectivityDictionary = connectivityMatrix(symbolSize, constraintList)
 
     plotConnectivityMatrix(matrix, seqBases, seqBases, xSize = 28, ySize = 28)
     
@@ -272,13 +284,19 @@ def trackGClevel(a, candidateList, c, gcLevel = 0.5):
     bestIndex = argmin(np.abs(gcCount - gcLevel))
     return candidateList[bestIndex]
 
+def euclidCandidates(constraintList, symbolSize):
+    matrix, seqBinary, seqBases, V, connectivityDictionary = connectivityMatrix(symbolSize, constraintList)
+    plotConnectivityMatrix(matrix, seqBases, seqBases, xSize = 28, ySize = 28)
+    candidates, vSymbols, hSymbols = generateCandidates(matrix, connectivityDictionary, seqBinary, seqBinary, ['0', '1'])
+    return candidates, connectivityDictionary, vSymbols, hSymbols
+    
 
-
-def testEuclid():
+def testEuclid(symbolSize = 4):
     c, cd, vsym, hsym = euclidCandidatesForTheJoin()
     #numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols = makeFSM(c, vsym, hsym, minimiseReservedValue)
     numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols = makeFSM(c, vsym, hsym, trackGClevel)
     return numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols
+
 
 if __name__ == '__main__':
     numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols = testEuclid()

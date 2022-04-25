@@ -104,3 +104,47 @@ def binaryFileToDnaUsingEuclid(inputFilename, lineLength, outputFilename = None,
                 # Read new byte
                 byte = inFile.read(1)
 
+
+def dnaFileToDnaFileUsingEuclid(inputFile, outputFile, constraintList = None, symbolSize = 4, start = None, end = None):
+    """
+    This function accepts a DNA file (i.e. a txt file where each line is a textual sequence over the symbols A,C,T,G)
+    And writes a new DNA to outputFileName file using a generated Euclid encoding.
+    The encoding is produced from the arguments constraintyList and symbolSize.
+    If a start and or end integers are given, the text upto start will be regarded as a prefix,
+    the text starting at end will be regarded as a suffix.
+    The line will be read, prefixes and suffixes will be read, ignored (not coded) and written as a prefix and a suffix in the outputFile.
+    """
+    
+    if constraintList == None:
+        numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols = produceEuclidEncoding.testEuclid(symbolSize = 4)
+    else:
+        # I hate the notation constraintList = constraintList, symbolSize = symbolSize, but right side is the local value and left side is the called function variable name.
+        numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols = produceEuclidEncoding.testEuclid(constraintList = constraintList, symbolSize = symbolSize)
+
+    if start == None:
+        start = 0
+    if end == None:
+        # I hate this python notation, but the meaning is that end could be defined as the end of the strand now istead of on the fly.
+        end = -1
+    euclidFSM = convolutional.makeEuclidFSM(verticalSymbols, horizontalSymbols, outputFSM)
+    triggerLength = len(horizontalSymbols[0])
+    with open(outputFile, "w") as outFileID:
+        with open(inputFile, "r") as inFileID:
+            strands = inFileID.readlines()
+            for s in strands:
+                status, binaryTextLine, binaryLineNumerical = mapping.dnaToBinary(s[start : end])
+                nucStream = mapping.binaryStreamToBases(binaryTextLine)
+                print(nucStream == mapping.binaryStreamToBases(binaryTextLine))
+                if (len(binaryTextLine) % triggerLength) != 0:
+                    padding = '0' * (triggerLength - (len(binaryTextLine) % triggerLength))
+                    binaryTextLine = binaryTextLine + padding
+                encodedStream = convolutional.FSMdictionaryEncoder(binaryTextLine, euclidFSM)
+                flatStream = ''
+                for sublist in encodedStream:
+                    flatStream = flatStream + sublist
+                encodedNucStream = mapping.binaryStreamToBases(flatStream)
+                encodedNucStream = s[0 : start] + encodedNucStream + s[end : -1] + '\n'
+                outFileID.write(encodedNucStream)
+    return
+            
+            

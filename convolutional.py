@@ -73,7 +73,10 @@ class FSM():
         #Init output
         output = ''
         #Get the output from the outputTable, matching to the number of state we are in and the number of the trigger.
+        #print("***** debug")
         #print(self.presentState)
+        #print(self.outputTable[self.presentState])
+        #print(trigger)
         #print(type(self.presentState))
         output = self.outputTable[self.presentState][trigger]
         nextState = self.transitionTable[self.presentState][trigger]
@@ -150,6 +153,7 @@ def FSMdictionaryEncoder(streamIn, FSM, graphics = False):
     while i < numberOfSteps:
         
         trigger = streamIn[i * FSM.stepSize: (i + 1) * FSM.stepSize]
+        print(trigger)
         output = FSM.stepDictionary(trigger)
         encodedStream.append(output)
         i = i + 1
@@ -546,6 +550,7 @@ def exampleOneThirdConvolutional():
 
 
 def makeEuclidFSM(verticalSymbols, horizontalSymbols, outputFSM, initState = '00000000'):
+    assert initState in verticalSymbols, "OSS: Initial State for a finite state machine must be valid."
     euclidFSM = FSM(verticalSymbols, horizontalSymbols, outputFSM, outputFSM, initState)
     return euclidFSM
 
