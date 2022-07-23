@@ -5,12 +5,12 @@ Created on Tue Jan 25 10:10:30 2022
 @author: omers
       
 """
-# import os
-# import sys
-# projectDir = os.environ.get('EUCLID')
-# if projectDir == None:
-#     projectDir = "E:/Euclid"
-# sys.path.insert(1, projectDir)
+import os
+import sys
+projectDir = os.environ.get('EUCLID')
+if projectDir == None:
+     projectDir = "D:/Euclid"
+sys.path.insert(1, projectDir)
 from numpy.core.fromnumeric import argmin
 from binaryToDna import reduceMatrix, connectivityMatrix, plotConnectivityMatrix
 import copy
@@ -18,7 +18,9 @@ from itertools import combinations_with_replacement
 import numpy as np
 import mapping
 import re
-
+import concurrent.futures
+seed = 117 #Go MasterChief !
+EUCLID_LOCAL_PRNG = np.random.RandomState(seed)
 # def isFullyConnected(matrix):
 #     result = (np.sum(matrix) == matrix.size)
 #     return result
@@ -69,8 +71,6 @@ def generateCandidates(inMatrix, connectivityDictionary, verticalSymbols, horizo
             tempList = []
             for prefix in prefixes:
                 tempSymbol = prefix + horizontalSymbol
-                #print(verticalSymbol)
-                #print(horizontalSymbol)
                 if connectivityDictionary[verticalSymbol][tempSymbol] == 1:
                     tempList.append(prefix)
             candidatesDictionary[verticalSymbol][horizontalSymbol] = tempList
@@ -241,23 +241,60 @@ def makeFSM(candidates, verticalSymbols, horizontalSymbols, mechanism):
     # Now comes the hard part: we need to choose an output (validPrefix + newHorizontalSymbol) for every (state, trigger) pair.
     outputDictionary = {}
     outputFSM = {}
+    #Now use multiprocessing over the vertical symbols
     for vs in verticalSymbols:
         outputDictionary[vs] = {}
         outputFSM[vs] = {}
-        for hs in horizontalSymbols:
-            output = mechanism(vs, candidates[vs][hs], hs)
-            #print(output)
-            outputDictionary[vs][hs] = output
-            outputFSM[vs][hs] = output + hs
+    # with concurrent.futures.ProcessPoolExecutor() as executor:
+    #     futureOutputs = {executor.submit(mechanism, iterator[0], candidates[iterator[0]][iterator[1]], iterator[1]): iterator for iterator in vs, hs in zip(verticalSymbols, horizontalSymbols)}
+    #     for futureOutput in concurrent.futures.as_completed(futureOutputs):
+    #         [vs, hs, output] = futureOutput.result()
+    #         outputDictionary[vs][hs] = output
+    #         outputFSM[vs][hs] = output + hs
+        
+    #temp = []
+    
+    for vs in verticalSymbols:
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            futureResults = {executor.submit(mechanism, vs, candidates[vs][hs], hs): hs for hs in horizontalSymbols}
+            #for hs in horizontalSymbols:
+            #temp.append([vs, hs, executor.submit(mechanism, vs, candidates[vs][hs], hs)])
+            for result in concurrent.futures.as_completed(futureResults):
+                #print(result.result())
+                [vs, output, hs] = result.result()
+         
+                outputDictionary[vs][hs] = output
+                outputFSM[vs][hs] = output + hs
+    # for vs in verticalSymbols:
+    #     outputDictionary[vs] = {}
+    #     outputFSM[vs] = {}
+    #     for hs in horizontalSymbols:
+    #         output = mechanism(vs, candidates[vs][hs], hs)
+    #         #print(output)
+    #         outputDictionary[vs][hs] = output
+    #         outputFSM[vs][hs] = output + hs
             
     return countMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols
 
 
+def completelyRandom(a, candidatesList,c):
+    return [a, EUCLID_LOCAL_PRNG.random.choice(candidatesList), c]
+
+def gcTrackingFirstRandomSecond(a, candidatesList, c, gcLevel = 0.5, epsilon = 0.15):
+    gcCount = np.zeros(len(candidatesList))
+    for i in range(len(candidatesList)):
+        binaryWord = a + candidatesList[i] + c
+        dnaWord = mapping.binaryStreamToBases(binaryWord)
+        gcContent = (len(re.findall('G', dnaWord)) + len(re.findall('C', dnaWord))) / len(dnaWord)
+        gcCount[i] = gcContent
+    reducedCandidatesList = candidatesList[np.where(np.abs(gcCount - gcLevel) <= epsilon)]
+    return [a, EUCLID_LOCAL_PRNG.random.choice(reducedCandidatesList), c]
+    
 def minimiseReservedValue(a,candidatesList,c):
     candidatesAsInt = np.zeros(len(candidatesList))
     for i in range(len(candidatesList)):
         candidatesAsInt[i] = int(candidatesList[i], 2)
-    return candidatesList[(np.argmin(candidatesAsInt))]
+    return [a, candidatesList[(np.argmin(candidatesAsInt))], c]
 
 def minimiseLeftRightMagnitude(a, candidatesList, c):
     aInt = int(a, 2)
@@ -265,24 +302,17 @@ def minimiseLeftRightMagnitude(a, candidatesList, c):
     for i in range(len(candidatesList)):
         candidatesAndCAsInt[i] = int((candidatesList[i] + c), 2)
     difference = np.abs(candidatesAndCAsInt - aInt)
-    return candidatesList[np.argmin(difference)]
+    return [a, candidatesList[np.argmin(difference)], c]
 
 def trackGClevel(a, candidateList, c, gcLevel = 0.5):
     gcCount = np.zeros(len(candidateList))
     for i in range(len(candidateList)):
         binaryWord = a + candidateList[i] + c
-        #print("*** debugging ...")
-        #print(binaryWord)
         dnaWord = mapping.binaryStreamToBases(binaryWord)
-        #print(dnaWord)
-        #print(len(dnaWord))
-        #print(len(re.findall('G', dnaWord)))
-        #print(len(re.findall('C', dnaWord)))
         gcContent = (len(re.findall('G', dnaWord)) + len(re.findall('C', dnaWord))) / len(dnaWord)
-        #print(gcContent)
         gcCount[i] = gcContent
     bestIndex = argmin(np.abs(gcCount - gcLevel))
-    return candidateList[bestIndex]
+    return [a, candidateList[bestIndex], c]
 
 def euclidCandidates(constraintList, symbolSize):
     matrix, seqBinary, seqBases, V, connectivityDictionary = connectivityMatrix(symbolSize, constraintList)
@@ -299,5 +329,6 @@ def testEuclid(symbolSize = 4):
 
 
 if __name__ == '__main__':
-    numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols = testEuclid()
+    #numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols = testEuclid()
+    pass
     

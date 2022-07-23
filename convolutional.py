@@ -153,7 +153,7 @@ def FSMdictionaryEncoder(streamIn, FSM, graphics = False):
     while i < numberOfSteps:
         
         trigger = streamIn[i * FSM.stepSize: (i + 1) * FSM.stepSize]
-        print(trigger)
+        #print(trigger)
         output = FSM.stepDictionary(trigger)
         encodedStream.append(output)
         i = i + 1

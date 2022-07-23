@@ -6,7 +6,7 @@ Created on Thu Mar 31 11:26:38 2022
 """
 
 from produceEuclidEncoding import *
-from analysisFunctions import *
+from analysisFunctions import windowedGCcontent
 import matplotlib.pyplot as plt
 import mapping
 import produceEuclidEncoding
@@ -14,17 +14,19 @@ import convolutional
 
 EXAMPLE_SEQUENCE = 'TTTTTCGATTTTTGACCACGAAACCACCCTGACGGCCGCGAAAAAAAACATCCATCAAAAAGGGAAAAAAAAAAAAAAGAAAAAAAGGAAACAATTAAAAAAAGAAAAAAAAAAAAAACTAAAAAAAAAAAAGACGAAACACAAAAAAAAAGAAAAAAAAAAAAAAGTAAAAAAAAAAAAGATGAAACACGGAAAAAACCAAAAAAAAAAAAAAACAAAAAAAAAAAAGCGGAAACACGTAAAAAACCAAAAAAAAAAAAAAACAA'
 
-EXAMPLE_HOMOPOLYMER = 'A'*1000
+EXAMPLE_HOMOPOLYMER = 'A' * 266
 
-def dissertationExample1(windowSize = 20, symbolSize = 4):
-    example1ConstraintList = {'gcMin': 0.35, 'gcMax': 0.65, 'runLength': 10}#,
+EXAMPLE_STR1 = 'AG' * 133
+
+def dissertationExample1(windowSize = 20, symbolSize = 8):
+    example1ConstraintList = {'gcMin': 0.25, 'gcMax': 0.75, 'runLength': 10}#,
     c, cd, vsym, hsym = euclidCandidates(constraintList = example1ConstraintList, symbolSize = symbolSize) 
     #numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols = makeFSM(c, vsym, hsym, minimiseReservedValue)
     numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols = makeFSM(c, vsym, hsym, trackGClevel)
     triggerLength = len(horizontalSymbols[0])
     status, binaryTextLine, binaryLineNumerical = mapping.dnaToBinary(EXAMPLE_SEQUENCE)
     nucStream = mapping.binaryStreamToBases(binaryTextLine)
-    print(nucStream == mapping.binaryStreamToBases(binaryTextLine))
+    #print(nucStream == mapping.binaryStreamToBases(binaryTextLine))
     initialState = '0'*2*symbolSize
     euclidFSM = convolutional.makeEuclidFSM(verticalSymbols, horizontalSymbols, outputFSM, initialState)
     if (len(binaryTextLine) % triggerLength) != 0:

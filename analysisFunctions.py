@@ -58,7 +58,7 @@ def windowedGCcontent(sequence, windowSize = 5):
         gcContent[i - windowSize] = GC
     
     gcContent = gcContent / (GC + AT + other)
-    print(gcContent)
+    #print(gcContent)
     return status, slidingPoints, gcContent, GC, AT, other
             
     

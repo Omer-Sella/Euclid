@@ -10,7 +10,7 @@ import math
 import copy
 import matplotlib.cm as cm
 import matplotlib.colors
-import xlsxwriter
+#import xlsxwriter
 
 def binaryPlusOne(operand):
     """
