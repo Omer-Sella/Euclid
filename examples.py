@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import mapping
 import produceEuclidEncoding
 import convolutional
+import scipy.io
 
 EXAMPLE_SEQUENCE = 'TTTTTCGATTTTTGACCACGAAACCACCCTGACGGCCGCGAAAAAAAACATCCATCAAAAAGGGAAAAAAAAAAAAAAGAAAAAAAGGAAACAATTAAAAAAAGAAAAAAAAAAAAAACTAAAAAAAAAAAAGACGAAACACAAAAAAAAAGAAAAAAAAAAAAAAGTAAAAAAAAAAAAGATGAAACACGGAAAAAACCAAAAAAAAAAAAAAACAAAAAAAAAAAAGCGGAAACACGTAAAAAACCAAAAAAAAAAAAAAACAA'
 
@@ -46,8 +47,6 @@ def dissertationExample1(windowSize = 20, symbolSize = 8):
     status, slidingPointsEncoded1, gcContentEncoded1, GC, AT, other = windowedGCcontent(encodedNucStream, 20)
     txt = 'Encoded, window size ' +str(windowSize)
     ax.plot(slidingPointsEncoded1, gcContentEncoded1, linewidth=2.0, label = txt)
-    
-    
     ax.set(ylim=(0, 1))
     ax.grid(True)
     plt.legend()
