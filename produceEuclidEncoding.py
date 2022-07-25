@@ -9,7 +9,7 @@ import os
 import sys
 projectDir = os.environ.get('EUCLID')
 if projectDir == None:
-     projectDir = "D:/Euclid"
+     projectDir = "E:/Euclid"
 sys.path.insert(1, projectDir)
 from numpy.core.fromnumeric import argmin
 from binaryToDna import reduceMatrix, connectivityMatrix, plotConnectivityMatrix

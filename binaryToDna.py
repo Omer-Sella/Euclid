@@ -137,6 +137,29 @@ def produceStatsFromDnaFile(inputFilename, userSubSequences = None):
     print(occurences)
     return subSequences, occurences
 
+
+def produceStatsFromSequence(sequence, userSubSequences = None):
+    basePairs = ['A','T','C','G']
+    subSequences = []
+    for c0 in basePairs:
+        subSequences = subSequences + [c0]
+    for c0 in basePairs:
+        for c1 in basePairs:
+            subSequences = subSequences + [c0 + c1]
+    for c0 in basePairs:
+        for c1 in basePairs:
+            for c2 in basePairs:
+                subSequences = subSequences + [c0 + c1 + c2]
+    if userSubSequences != None:
+        subSequences = subSequences + userSubSequences
+    occurences = np.zeros(len(subSequences), dtype = np.int32)
+    
+    for s in range(len(subSequences)):
+        allMatches = re.findall(subSequences[s], sequence)
+        occurences[s] = occurences[s] + len(allMatches)
+    print(occurences)
+    return subSequences, occurences
+
 """
 sub = ['A', 'T', 'C', 'G', 'AA', 'AT', 'AC', 'AG', 'TA', 'TT', 'TC', 'TG', 'CA', 'CT', 'CC', 'CG', 'GA', 'GT', 'GC', 'GG', 'AAA', 'AAT', 'AAC', 'AAG', 'ATA', 'ATT', 'ATC', 'ATG', 'ACA', 'ACT', 'ACC', 'ACG', 'AGA', 'AGT', 'AGC', 'AGG', 'TAA', 'TAT', 'TAC', 'TAG', 'TTA', 'TTT', 'TTC', 'TTG', 'TCA', 'TCT', 'TCC', 'TCG', 'TGA', 'TGT', 'TGC', 'TGG', 'CAA', 'CAT', 'CAC', 'CAG', 'CTA', 'CTT', 'CTC', 'CTG', 'CCA', 'CCT', 'CCC', 'CCG', 'CGA', 'CGT', 'CGC', 'CGG', 'GAA', 'GAT', 'GAC', 'GAG', 'GTA', 'GTT', 'GTC', 'GTG', 'GCA', 'GCT', 'GCC', 'GCG', 'GGA', 'GGT', 'GGC', 'GGG']
 occ = np.array([1774547, 1629353, 1351267, 1628193,  377500,  419691,  415585,
@@ -216,7 +239,7 @@ def subSequenceGraphics(subSequences, occurances):
                     xy=(rect.get_x() + rect.get_width() / 2, height),
                     xytext=(0, 0),  
                     textcoords="offset points",
-                    ha='center', va='center', size = 24)
+                    ha='center', va='center', size = 36)
     for s in range(len(s2)):
         rect = s2[s]
         height = rect.get_height()
@@ -224,7 +247,7 @@ def subSequenceGraphics(subSequences, occurances):
                     xy=(rect.get_x() + rect.get_width() / 2, 2 * height),
                     xytext=(0, 0),  
                     textcoords="offset points",
-                    ha='center', va='center', size = 20)
+                    ha='center', va='center', size = 22)
     for s in range(len(s3)):
         rect = s3[s]
         height = rect.get_height()
@@ -232,9 +255,9 @@ def subSequenceGraphics(subSequences, occurances):
                     xy=(rect.get_x() + rect.get_width() / 2, 3 * height),
                     xytext=(0, 0),  
                     textcoords="offset points",
-                    ha='center', va='center', size = 18)
+                    ha='center', va='center', size = 20)
 
-    ax.set_title("Distribution of subsequences.", fontsize = 18)
+    ax.set_title("Distribution of subsequences.", fontsize = 36)
     ax.set_axis_off()
     plt.show()
     

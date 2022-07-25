@@ -62,5 +62,7 @@ def windowedGCcontent(sequence, windowSize = 5):
     return status, slidingPoints, gcContent, GC, AT, other
             
     
-
+def gcVariance(sequence, windowSize = 50):
+    status, slidingPoints, gcContent, GC, AT, other = windowedGCcontent(sequence, windowsSize = windowsSize)
+    varianceArray = np.zeros(())
     
