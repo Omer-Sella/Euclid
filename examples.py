@@ -8,7 +8,7 @@ import os
 import sys
 projectDir = os.environ.get('EUCLID')
 if projectDir == None:
-     projectDir = "E:/Euclid"
+     projectDir = "D:/Euclid/"
 sys.path.insert(1, projectDir)
 from produceEuclidEncoding import *
 from analysisFunctions import windowedGCcontent
@@ -17,10 +17,13 @@ import mapping
 import produceEuclidEncoding
 import convolutional
 import scipy.io
+import numpy as np
 
 EXAMPLE_SEQUENCE = 'TTTTTCGATTTTTGACCACGAAACCACCCTGACGGCCGCGAAAAAAAACATCCATCAAAAAGGGAAAAAAAAAAAAAAGAAAAAAAGGAAACAATTAAAAAAAGAAAAAAAAAAAAAACTAAAAAAAAAAAAGACGAAACACAAAAAAAAAGAAAAAAAAAAAAAAGTAAAAAAAAAAAAGATGAAACACGGAAAAAACCAAAAAAAAAAAAAAACAAAAAAAAAAAAGCGGAAACACGTAAAAAACCAAAAAAAAAAAAAAACAA'
 
 EXAMPLE_HOMOPOLYMER = 'A' * 266
+
+EXAMPLE_HOMOPOLYMERS = 'A' * 66 + 'C' * 66 + 'T' * 66 + 'A' * 66 + 'ACTG'
 
 EXAMPLE_STR1 = 'AG' * 133
 
@@ -42,7 +45,7 @@ def dissertationExample1(windowSize = 20, symbolSize = 5, mechanism = trackGClev
     c, cd, vsym, hsym = euclidCandidates(constraintList = example1ConstraintList, symbolSize = symbolSize) 
     
     #numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols = makeFSM(c, vsym, hsym, minimiseReservedValue)
-    numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols = makeFSM(c, vsym, hsym, trackGClevel)
+    numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols = makeFSM(c, vsym, hsym, mechanism)
     
     triggerLength = len(horizontalSymbols[0])
     if uncodedSequence == None:
@@ -86,7 +89,7 @@ def dissertationExample1(windowSize = 20, symbolSize = 5, mechanism = trackGClev
     ax.hlines(np.average(gcContentSource), slidingPointsSource[0], slidingPointsSource[-1], colors = 'red', linestyle = '-', linewidth = 2.0, label = averageGCSourceTxt)
     #ax.hlines(np.average(gcContentSource), slidingPointsSource[0], slidingPointsSource[-1], colors = 'red', linestyle = '-', linewidth = 2.0)
     averageGCEncodedTxt = "Average sliding window GC content " + str(np.average(gcContentEncoded1))
-    ax.hlines(np.average(gcContentEncoded1), slidingPointsEncoded1[0], slidingPointsEncoded1[-1], colors = 'red', linestyle = '-', linewidth = 2.0, label = averageGCEncodedTxt)
+    ax.hlines(np.average(gcContentEncoded1), slidingPointsEncoded1[0], slidingPointsEncoded1[-1], colors = 'green', linestyle = '-', linewidth = 2.0, label = averageGCEncodedTxt)
     #ax.hlines(max(gcContentEncoded1), slidingPointsEncoded1[0], slidingPointsEncoded1[-1], colors = 'red', linestyle = '-', linewidth = 2.0)
     plt.legend(fontsize = 24)
     
@@ -119,13 +122,41 @@ def openVirusFile(filePath):
     dna = ''
     with open(filePath, "r") as virusFile:
         for newLine in virusFile:
-            line = virusFile.readline()
-            line.strip("\n")
-            line.strip(" ")
-            line.upper()
+            lineList = virusFile.readline()
+            lineList = lineList.split(" ")
+            print(lineList)
+            #line = line.strip(" ")
+            #print(line)
+            line = ''
+            for word in lineList:
+                temp = word.strip('\n')
+                line = line + temp.upper()
             dna = dna + line
     return dna
 
 
 
-
+def graphicsForExamples(slidingPoints, gcContent, windowSize, fileName, title = None):
+    fig, ax = plt.subplots()
+    txt = 'Source sequence, window size ' +str(windowSize)
+    ax.plot(slidingPoints, gcContent, linewidth=2.0, label = txt)
+    ax.set(ylim=(0, 1))
+    ax.grid(True)
+    ax.set_xlabel("Index of window start position. Window size = " + str(windowSize) + "bases", size = 24)
+    ax.set_ylabel("GC content normalised", size = 24)
+    if title == None:
+        title = 'GC content calculated on a sliding windows'
+    ax.set_title(title, size = 24)
+    ax.tick_params(axis = 'both', which = 'major', labelsize = 24)
+    #ax.vlines(slidingPointsSource[-1], 0, 1, colors = 'red', linewidth = 2.5, linestyle = '--')
+    #ax.vlines(slidingPointsEncoded1[-1], 0, 1, colors = 'red', linewidth = 2.5, linestyle = '--')
+    averageGCSourceTxt = "Average sliding window GC content " + str(np.average(gcContent))
+    ax.hlines(np.average(gcContent), slidingPoints[0], slidingPoints[-1], colors = 'red', linestyle = '-', linewidth = 2.0, label = averageGCSourceTxt)
+    #ax.hlines(np.average(gcContentSource), slidingPointsSource[0], slidingPointsSource[-1], colors = 'red', linestyle = '-', linewidth = 2.0)
+    #averageGCEncodedTxt = "Average sliding window GC content " + str(np.average(gcContentEncoded1))
+    #ax.hlines(np.average(gcContentEncoded1), slidingPointsEncoded1[0], slidingPointsEncoded1[-1], colors = 'red', linestyle = '-', linewidth = 2.0, label = averageGCEncodedTxt)
+    #ax.hlines(max(gcContentEncoded1), slidingPointsEncoded1[0], slidingPointsEncoded1[-1], colors = 'red', linestyle = '-', linewidth = 2.0)
+    plt.legend(fontsize = 24)
+    plt.tight_layout()
+    figureFileNameWithPath = projectDir + "/" + fileName + '.png'
+    plt.savefig(fname = figureFileNameWithPath)    

@@ -9,7 +9,7 @@ import os
 import sys
 projectDir = os.environ.get('EUCLID')
 if projectDir == None:
-     projectDir = "E:/Euclid"
+     projectDir = "D:/Euclid/"
 sys.path.insert(1, projectDir)
 from numpy.core.fromnumeric import argmin
 from binaryToDna import reduceMatrix, connectivityMatrix, plotConnectivityMatrix
@@ -278,7 +278,7 @@ def makeFSM(candidates, verticalSymbols, horizontalSymbols, mechanism):
 
 
 def completelyRandom(a, candidatesList,c):
-    return [a, EUCLID_LOCAL_PRNG.random.choice(candidatesList), c]
+    return [a, EUCLID_LOCAL_PRNG.choice(candidatesList), c]
 
 def gcTrackingFirstRandomSecond(a, candidatesList, c, gcLevel = 0.5, epsilon = 0.15):
     gcCount = np.zeros(len(candidatesList))
@@ -288,7 +288,7 @@ def gcTrackingFirstRandomSecond(a, candidatesList, c, gcLevel = 0.5, epsilon = 0
         gcContent = (len(re.findall('G', dnaWord)) + len(re.findall('C', dnaWord))) / len(dnaWord)
         gcCount[i] = gcContent
     reducedCandidatesList = candidatesList[np.where(np.abs(gcCount - gcLevel) <= epsilon)]
-    return [a, EUCLID_LOCAL_PRNG.random.choice(reducedCandidatesList), c]
+    return [a, EUCLID_LOCAL_PRNG.choice(reducedCandidatesList), c]
     
 def minimiseReservedValue(a,candidatesList,c):
     candidatesAsInt = np.zeros(len(candidatesList))

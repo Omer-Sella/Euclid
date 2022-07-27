@@ -5,7 +5,7 @@ Created on Wed Apr 20 13:50:45 2022
 @author: omers
 """
 
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -63,6 +63,19 @@ def windowedGCcontent(sequence, windowSize = 5):
             
     
 def gcVariance(sequence, windowSize = 50):
-    status, slidingPoints, gcContent, GC, AT, other = windowedGCcontent(sequence, windowsSize = windowsSize)
-    varianceArray = np.zeros(())
+    import seaborn as sns
+    import matplotlib.pylab as plt
+    plt.style.use("seaborn")
+    status, slidingPoints, gcContent, GC, AT, other = windowedGCcontent(sequence, windowSize = windowSize)
+    varianceArray = np.zeros((len(gcCntent), len(gcContent)), dtype = np.float64)
+    for i in range(len(gcContent)):
+        for j in range(len(gcContent)):
+            varianceArray = np.abs(gcContent[i] - gcContent[j])
+    plt.figure(figsize=(len(gcContent),len(gcContent)))
+    heat_map = sns.heatmap( varianceArray, linewidth = 1 , annot = True)
+    plt.title( "G-C variance between stretches of " + str(windowSize) + " nucleotides" )
+    plt.show()
+
+    
+
     
