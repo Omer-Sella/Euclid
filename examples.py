@@ -11,21 +11,22 @@ if projectDir == None:
      projectDir = "D:/Euclid/"
 sys.path.insert(1, projectDir)
 from produceEuclidEncoding import *
-from analysisFunctions import windowedGCcontent
+from analysisFunctions import windowedGCcontent, gcVariance
 import matplotlib.pyplot as plt
 import mapping
 import produceEuclidEncoding
 import convolutional
 import scipy.io
 import numpy as np
+import binaryToDna
 
 EXAMPLE_SEQUENCE = 'TTTTTCGATTTTTGACCACGAAACCACCCTGACGGCCGCGAAAAAAAACATCCATCAAAAAGGGAAAAAAAAAAAAAAGAAAAAAAGGAAACAATTAAAAAAAGAAAAAAAAAAAAAACTAAAAAAAAAAAAGACGAAACACAAAAAAAAAGAAAAAAAAAAAAAAGTAAAAAAAAAAAAGATGAAACACGGAAAAAACCAAAAAAAAAAAAAAACAAAAAAAAAAAAGCGGAAACACGTAAAAAACCAAAAAAAAAAAAAAACAA'
 
 EXAMPLE_HOMOPOLYMER = 'A' * 266
 
-EXAMPLE_HOMOPOLYMERS = 'A' * 66 + 'C' * 66 + 'T' * 66 + 'A' * 66 + 'ACTG'
+EXAMPLE_HOMOPOLYMERS = 'A' * 66 + 'C' * 66 + 'T' * 66 + 'G' * 66 + 'ACTG'
 
-EXAMPLE_STR1 = 'AG' * 133
+EXAMPLE_STR1 = 'ACTG' * 133
 
 def saveFSM(states, triggers, transitionDictionary, path = projectDir, fileName = 'example'):
     workspaceDict = {}
@@ -160,3 +161,21 @@ def graphicsForExamples(slidingPoints, gcContent, windowSize, fileName, title = 
     plt.tight_layout()
     figureFileNameWithPath = projectDir + "/" + fileName + '.png'
     plt.savefig(fname = figureFileNameWithPath)    
+
+def produceGraphicsForMethodology(sequence = None):
+    if sequence == None:
+        sequence = EXAMPLE_SEQUENCE
+    subSequences, occurences = binaryToDna.produceStatsFromSequence(sequence)
+    binaryToDna.subSequenceGraphics(subSequences[0:4], occurences[0:4])
+    binaryToDna.subSequenceGraphics(subSequences[0:20], occurences[0:20])
+    binaryToDna.subSequenceGraphics(subSequences, occurences)
+    return
+    
+    
+    
+def analyseExample(filePath):
+    workSpaceDictionary = scipy.io.loadmat(filePath)
+    uncodedStream = (workSpaceDictionary['uncodedSequence'])[0]
+    encodedStream = (workSpaceDictionary['encodedNucStream'])[0]
+    gcVariance(encodedStream, 100)
+    return

@@ -184,53 +184,56 @@ def subSequenceGraphics(subSequences, occurances):
     numberOfCircles = 3
     size = 0.3
     singles = copy.copy(occurances[0:4])
-    doubles = copy.copy(occurances[4:20])
-    triplets = copy.copy(occurances[20:])
     singlesNormed = 2 * np.pi * singles / np.sum(singles)
     singlesLeft = np.cumsum(np.append(0, singlesNormed[:-1]))
-    doublesNormed = np.zeros(len(doubles), dtype = np.float32)
-    doublesLeft = np.zeros(len(doubles), dtype = np.float32)
-    tripletsNormed = np.zeros(len(triplets), dtype = np.float32)
-    tripletsLeft = np.zeros(len(triplets), dtype = np.float32)
-    #print(singlesNormed)
-    #print(singlesLeft)
-    
-    for i in range(4):
-        relevantSum = np.sum(doubles[4 * i : 4 * (i + 1)])
-        #print(relevantSum)
-        #print(doubles[4 * i : 4 * (i + 1)])
-        #print(singlesNormed[i])
-        vector = singlesNormed[i] * doubles[4 * i : 4 * (i + 1)] / relevantSum 
-        #print(vector)
-        doublesNormed[4 * i : 4 * (i + 1)] = vector #singlesNormed[i] * doublesNormed[4 * i : 4 * (i + 1)] / relevantSum
-        #print(doublesNormed[4 * i : 4 * (i + 1)])
-        doublesLeft[4 * i : 4 * (i + 1)] = np.cumsum(np.append(0, doublesNormed[4 * i : 4 * (i + 1) - 1] )) + singlesLeft[i]
-        #print(doublesLeft[4 * i : 4 * (i + 1)])
-    
-    for i in range(16):
-        relevantSum = np.sum(triplets[4 * i : 4 * (i + 1)])
-        #print(relevantSum)
-        #print(doubles[4 * i : 4 * (i + 1)])
-        #print(singlesNormed[i])
-        vector = doublesNormed[i] * triplets[4 * i : 4 * (i + 1)] / relevantSum 
-        #print(vector)
-        tripletsNormed[4 * i : 4 * (i + 1)] = vector #singlesNormed[i] * doublesNormed[4 * i : 4 * (i + 1)] / relevantSum
-        #print(doublesNormed[4 * i : 4 * (i + 1)])
-        tripletsLeft[4 * i : 4 * (i + 1)] = np.cumsum(np.append(0, tripletsNormed[4 * i : 4 * (i + 1) - 1] )) + doublesLeft[i]
-        #print(doublesLeft[4 * i : 4 * (i + 1)])
     cmap = plt.get_cmap("tab20c")
     singlesColors = cmap(np.arange(4)*4)
-    doublesColors = cmap(np.arange(16))
-    tripletsColors = cmap(np.arange(4)*4)
+    if len(occurances) > 4 :
+        doubles = copy.copy(occurances[4:20])
+        doublesNormed = np.zeros(len(doubles), dtype = np.float32)
+        doublesLeft = np.zeros(len(doubles), dtype = np.float32)    
+        doublesColors = cmap(np.arange(16))
+        for i in range(4):
+            relevantSum = np.sum(doubles[4 * i : 4 * (i + 1)])
+            vector = singlesNormed[i] * doubles[4 * i : 4 * (i + 1)] / relevantSum 
+            doublesNormed[4 * i : 4 * (i + 1)] = vector #singlesNormed[i] * doublesNormed[4 * i : 4 * (i + 1)] / relevantSum
+            doublesLeft[4 * i : 4 * (i + 1)] = np.cumsum(np.append(0, doublesNormed[4 * i : 4 * (i + 1) - 1] )) + singlesLeft[i]
+        
+        tripletsColors = cmap(np.arange(4)*4)
+        if len(occurances) > 20 :
+            triplets = copy.copy(occurances[20:])
+            tripletsNormed = np.zeros(len(triplets), dtype = np.float32)
+            tripletsLeft = np.zeros(len(triplets), dtype = np.float32)
+            for i in range(16):
+                relevantSum = np.sum(triplets[4 * i : 4 * (i + 1)])
+                vector = doublesNormed[i] * triplets[4 * i : 4 * (i + 1)] / relevantSum 
+                tripletsNormed[4 * i : 4 * (i + 1)] = vector #singlesNormed[i] * doublesNormed[4 * i : 4 * (i + 1)] / relevantSum
+                tripletsLeft[4 * i : 4 * (i + 1)] = np.cumsum(np.append(0, tripletsNormed[4 * i : 4 * (i + 1) - 1] )) + doublesLeft[i]
+    
+        
+    
+    
+    # for i in range(4):
+    #     relevantSum = np.sum(doubles[4 * i : 4 * (i + 1)])
+    #     #print(relevantSum)
+    #     #print(doubles[4 * i : 4 * (i + 1)])
+    #     #print(singlesNormed[i])
+    #     vector = singlesNormed[i] * doubles[4 * i : 4 * (i + 1)] / relevantSum 
+    #     #print(vector)
+    #     doublesNormed[4 * i : 4 * (i + 1)] = vector #singlesNormed[i] * doublesNormed[4 * i : 4 * (i + 1)] / relevantSum
+    #     #print(doublesNormed[4 * i : 4 * (i + 1)])
+    #     doublesLeft[4 * i : 4 * (i + 1)] = np.cumsum(np.append(0, doublesNormed[4 * i : 4 * (i + 1) - 1] )) + singlesLeft[i]
+    #     #print(doublesLeft[4 * i : 4 * (i + 1)])
+    
+    
+
+    
+    
+    
+    
     s1 = ax.bar(x=singlesLeft,
            width=singlesNormed, bottom = 0, height = size,
            color = singlesColors, edgecolor='w', linewidth=1, align="edge", label = 'Single base')
-    s2 = ax.bar(x=doublesLeft,
-           width=doublesNormed, bottom = 0.33, height = size,
-           color = doublesColors, edgecolor='w', linewidth=1, align="edge", label = 'Two bases')
-    s3 = ax.bar(x=tripletsLeft,
-           width=tripletsNormed, bottom = 0.66, height = size,
-           color = tripletsColors, edgecolor='w', linewidth=1, align="edge", label = 'Three bases')
 
     for s in range(len(s1)):
         rect = s1[s]
@@ -240,25 +243,34 @@ def subSequenceGraphics(subSequences, occurances):
                     xytext=(0, 0),  
                     textcoords="offset points",
                     ha='center', va='center', size = 36)
-    for s in range(len(s2)):
-        rect = s2[s]
-        height = rect.get_height()
-        ax.annotate('{}'.format(subSequences[4 + s]),
-                    xy=(rect.get_x() + rect.get_width() / 2, 2 * height),
-                    xytext=(0, 0),  
-                    textcoords="offset points",
-                    ha='center', va='center', size = 22)
-    for s in range(len(s3)):
-        rect = s3[s]
-        height = rect.get_height()
-        ax.annotate('{}'.format(subSequences[4 + 16 + s]),
-                    xy=(rect.get_x() + rect.get_width() / 2, 3 * height),
-                    xytext=(0, 0),  
-                    textcoords="offset points",
-                    ha='center', va='center', size = 20)
+    if len(occurances) > 4 :
+        s2 = ax.bar(x=doublesLeft,
+           width=doublesNormed, bottom = 0.33, height = size,
+           color = doublesColors, edgecolor='w', linewidth=1, align="edge", label = 'Two bases')
+        for s in range(len(s2)):
+            rect = s2[s]
+            height = rect.get_height()
+            ax.annotate('{}'.format(subSequences[4 + s]),
+                        xy=(rect.get_x() + rect.get_width() / 2, 2 * height),
+                        xytext=(0, 0),  
+                        textcoords="offset points",
+                        ha='center', va='center', size = 22)
+    if len(occurances) > 20:
+        s3 = ax.bar(x=tripletsLeft,
+           width=tripletsNormed, bottom = 0.66, height = size,
+           color = tripletsColors, edgecolor='w', linewidth=1, align="edge", label = 'Three bases')
+        for s in range(len(s3)):
+            rect = s3[s]
+            height = rect.get_height()
+            ax.annotate('{}'.format(subSequences[4 + 16 + s]),
+                        xy=(rect.get_x() + rect.get_width() / 2, 3 * height),
+                        xytext=(0, 0),  
+                        textcoords="offset points",
+                        ha='center', va='center', size = 20)
 
     ax.set_title("Distribution of subsequences.", fontsize = 36)
     ax.set_axis_off()
+    #ax.legend() Doesn't work well. gives a blue rectangle.
     plt.show()
     
 
