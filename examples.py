@@ -209,7 +209,7 @@ if __name__ == '__main__':
     
     if args.mechanism == 'gcTracking':
         mech = trackGClevel
-    elif args.mechanis == 'random':
+    elif args.mechanism == 'random':
         mech = completelyRandom
     else:
         mech = completelyRandom
