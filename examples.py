@@ -185,6 +185,10 @@ def openExample(filePath):
     return
 
 if __name__ == '__main__':
+    projectDir = os.environ.get('EUCLID')
+    if projectDir == None:
+        projectDir = "D:/Euclid/"
+    sys.path.insert(1, projectDir)
     import argparse
     import os
     from produceEuclidEncoding import gcTracking, completelyRandom
@@ -203,7 +207,6 @@ if __name__ == '__main__':
     
     
     args = parser.parse_args()
-    PROJECT_PATH = os.environ.get('EUCLID')
     
     if args.mechanism == 'gcTracking':
         mech = gcTracking
