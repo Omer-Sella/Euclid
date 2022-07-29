@@ -7,6 +7,9 @@ Created on Wed Apr 20 13:50:45 2022
 
 #import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
+import matplotlib.pylab as plt
+plt.style.use("seaborn")
 
 
 def countGC(sequence):
@@ -62,19 +65,25 @@ def windowedGCcontent(sequence, windowSize = 5):
     return status, slidingPoints, gcContent, GC, AT, other
             
     
-def gcVariance(sequence, windowSize = 50):
-    import seaborn as sns
-    import matplotlib.pylab as plt
-    plt.style.use("seaborn")
+def gcVariance(sequence, windowSize = 50, graphics = True):
+    numberOfwindows =  10
     status, slidingPoints, gcContent, GC, AT, other = windowedGCcontent(sequence, windowSize = windowSize)
-    varianceArray = np.zeros((len(gcContent), len(gcContent)), dtype = np.float64)
-    for i in range(len(gcContent)):
-        for j in range(len(gcContent)):
-            varianceArray[i,j] = np.abs(gcContent[i] - gcContent[j])
-    plt.figure(figsize=(len(gcContent),len(gcContent)))
-    heat_map = sns.heatmap( varianceArray, linewidth = 1 , annot = True)
-    plt.title( "G-C difference (variance) between stretches of " + str(windowSize) + " nucleotides" )
-    plt.show()
+    argSortArray = np.argsort(gcContent)
+    argMaxGCCOntent = argSortArray[len(gcContent) - numberOfwindows : len(gcContent)]
+    argMinGCContent = argSortArray[0 : numberOfwindows]
+    print(gcContent)
+    # #maxGCCOntent = gcContent[argMaxGCCOntent]
+    # #minGCContent = gcContent[argMinGCContent]
+    varianceArray = np.zeros((numberOfwindows, numberOfwindows), dtype = np.float64)
+    for i in range(numberOfwindows):
+        for j in range(numberOfwindows):
+            varianceArray[i,j] = np.abs(gcContent[argMaxGCCOntent[i]] - gcContent[argMinGCContent[j]])
+    if graphics == True:
+        plt.figure(figsize=(numberOfwindows,numberOfwindows))
+        heat_map = sns.heatmap( varianceArray, linewidth = 1 , annot = True)
+        plt.title( "G-C difference (variance) between stretches of " + str(windowSize) + " nucleotides" )
+        plt.show()
+    return varianceArray, slidingPoints, gcContent, argMaxGCCOntent, argMinGCContent
     
 def windowedGCDistribution(sequence, windowSize):
     pass

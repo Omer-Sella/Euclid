@@ -109,6 +109,8 @@ def dissertationExample1(windowSize = 20, symbolSize = 5, mechanism = trackGClev
     workspaceDict['nucStream'] = nucStream
     workspaceDict['encodedStream'] = encodedStream
     workspaceDict['encodedNucStream'] = encodedNucStream
+    workspaceDict['outputDictionary'] = outputDictionary
+    workspaceDict['outputFSM'] = outputFSM
     fileNameWithPath = projectDir + "/" + fileName + '.mat'
     scipy.io.savemat(fileNameWithPath, workspaceDict)
     #plt.show()
@@ -173,9 +175,11 @@ def produceGraphicsForMethodology(sequence = None):
     
     
     
-def analyseExample(filePath):
+def openExample(filePath):
     workSpaceDictionary = scipy.io.loadmat(filePath)
     uncodedStream = (workSpaceDictionary['uncodedSequence'])[0]
     encodedStream = (workSpaceDictionary['encodedNucStream'])[0]
-    gcVariance(encodedStream, 100)
+    gcVariance(encodedStream, 50)
+    #varianceArray, slidingPoints, gcContent, argMaxGCCOntent, argMinGCContent = gcVariance(encodedStream, 50)
+    #return workSpaceDictionary, uncodedStream, encodedStream, varianceArray, slidingPoints, gcContent, argMaxGCCOntent, argMinGCContent
     return
