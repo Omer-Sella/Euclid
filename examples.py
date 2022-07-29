@@ -187,7 +187,7 @@ def openExample(filePath):
 if __name__ == '__main__':
     projectDir = os.environ.get('EUCLID')
     if projectDir == None:
-        projectDir = "D:/Euclid/"
+        projectDir = "/home/oss22/rds/hpc-work/Euclid/"
     sys.path.insert(1, projectDir)
     import argparse
     import os
