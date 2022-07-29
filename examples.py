@@ -183,3 +183,32 @@ def openExample(filePath):
     #varianceArray, slidingPoints, gcContent, argMaxGCCOntent, argMinGCContent = gcVariance(encodedStream, 50)
     #return workSpaceDictionary, uncodedStream, encodedStream, varianceArray, slidingPoints, gcContent, argMaxGCCOntent, argMinGCContent
     return
+
+if name == '__main__':
+    import argparse
+    import os
+    # Omer Sella: this is critical - we are setting forking to spawn, otherwise utilisation of multiple GPUs doesn't work properly
+    multiprocessing.set_start_method('spawn')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--sequence', type=str, default= 'EXAMPLE_HOMOPOLYMERS')
+    #parser.add_argument('--resetType', type=str, default= 'WORST_CODES')
+    parser.add_argument('--mechanism', type=str, default= 'gcTracking')
+    parser.add_argument('--fileName', type=str, default='example')
+    parser.add_argument('--windowSize', type=int, default=20)
+    parser.add_argument('--symbolSize', type=int, default=5)
+    parser.add_argument('--gcMin', type=float, default=0.25)
+    parser.add_argument('--gcMax', type=float, default=0.65)
+    parser.add_argument('--runLength', type=int, default=10)
+    
+    
+    args = parser.parse_args()
+    PROJECT_PATH = os.environ.get('EUCLID')
+    
+    if args.mechanism == 'gcTracking':
+        mech = gcTracking
+    elif args.mechanis == 'random':
+        mech = completelyRandom
+    else:
+        mech = completelyRandom
+    encodedNucStream = dissertationExample1(windowSize = args.windowSize, symbolSize = args.symbolSize, mechanism = mech, uncodedSequence = args.sequence, fileName = args.fileName, gcMin = args.gcMin, gcMax = args.gcMax, runLength = args.runLength)
+    #return encodedNucStream

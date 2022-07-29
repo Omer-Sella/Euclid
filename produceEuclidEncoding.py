@@ -332,3 +332,4 @@ if __name__ == '__main__':
     #numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols = testEuclid()
     pass
     
+    
