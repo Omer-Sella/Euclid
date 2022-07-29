@@ -188,7 +188,7 @@ if __name__ == '__main__':
     import argparse
     import os
     # Omer Sella: this is critical - we are setting forking to spawn, otherwise utilisation of multiple GPUs doesn't work properly
-    multiprocessing.set_start_method('spawn')
+    #multiprocessing.set_start_method('spawn')
     parser = argparse.ArgumentParser()
     parser.add_argument('--sequence', type=str, default= 'EXAMPLE_HOMOPOLYMERS')
     #parser.add_argument('--resetType', type=str, default= 'WORST_CODES')
