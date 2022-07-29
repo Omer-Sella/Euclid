@@ -19,7 +19,8 @@ import numpy as np
 import mapping
 import re
 import concurrent.futures
-seed = 117 #Go MasterChief !
+#seed = 117 #Go MasterChief !
+seed = 7134066
 EUCLID_LOCAL_PRNG = np.random.RandomState(seed)
 # def isFullyConnected(matrix):
 #     result = (np.sum(matrix) == matrix.size)

@@ -203,6 +203,7 @@ if __name__ == '__main__':
     parser.add_argument('--gcMin', type=float, default=0.25)
     parser.add_argument('--gcMax', type=float, default=0.65)
     parser.add_argument('--runLength', type=int, default=10)
+    parser.add_argument('--seed', type=int, default= 117)
     
     
     args = parser.parse_args()
