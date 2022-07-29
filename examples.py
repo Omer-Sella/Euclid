@@ -187,11 +187,10 @@ def openExample(filePath):
 if __name__ == '__main__':
     projectDir = os.environ.get('EUCLID')
     if projectDir == None:
-        projectDir = "/home/oss22/rds/hpc-work/Euclid/"
-    sys.path.insert(1, projectDir)
+        sys.path.insert(1, projectDir)
     import argparse
     import os
-    from produceEuclidEncoding import gcTracking, completelyRandom
+    from produceEuclidEncoding import trackGClevel, completelyRandom
     # Omer Sella: this is critical - we are setting forking to spawn, otherwise utilisation of multiple GPUs doesn't work properly
     #multiprocessing.set_start_method('spawn')
     parser = argparse.ArgumentParser()
@@ -209,7 +208,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     if args.mechanism == 'gcTracking':
-        mech = gcTracking
+        mech = trackGClevel
     elif args.mechanis == 'random':
         mech = completelyRandom
     else:
