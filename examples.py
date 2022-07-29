@@ -213,5 +213,11 @@ if __name__ == '__main__':
         mech = completelyRandom
     else:
         mech = completelyRandom
-    encodedNucStream = dissertationExample1(windowSize = args.windowSize, symbolSize = args.symbolSize, mechanism = mech, uncodedSequence = args.sequence, fileName = args.fileName, gcMin = args.gcMin, gcMax = args.gcMax, runLength = args.runLength)
+    if args.sequence == 'EXAMPLE_HOMOPOLYMERS':
+        seq = EXAMPLE_HOMOPOLYMERS
+    elif args.sequence == 'EXAMPLE_HOMOPOLYMER':
+        seq = EXAMPLE_HOMOPOLYMER
+    else:
+        seq = args.sequence
+    encodedNucStream = dissertationExample1(windowSize = args.windowSize, symbolSize = args.symbolSize, mechanism = mech, uncodedSequence = seq, fileName = args.fileName, gcMin = args.gcMin, gcMax = args.gcMax, runLength = args.runLength)
     #return encodedNucStream
