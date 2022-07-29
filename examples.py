@@ -184,7 +184,7 @@ def openExample(filePath):
     #return workSpaceDictionary, uncodedStream, encodedStream, varianceArray, slidingPoints, gcContent, argMaxGCCOntent, argMinGCContent
     return
 
-if name == '__main__':
+if __name__ == '__main__':
     import argparse
     import os
     # Omer Sella: this is critical - we are setting forking to spawn, otherwise utilisation of multiple GPUs doesn't work properly
