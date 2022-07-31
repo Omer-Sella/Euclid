@@ -111,8 +111,9 @@ def dissertationExample1(windowSize = 20, symbolSize = 5, mechanism = trackGClev
     workspaceDict['encodedNucStream'] = encodedNucStream
     workspaceDict['outputDictionary'] = outputDictionary
     workspaceDict['outputFSM'] = outputFSM
-    fileNameWithPath = projectDir + "/" + fileName + '.mat'
-    scipy.io.savemat(fileNameWithPath, workspaceDict)
+    fileNameWithPath = projectDir + "/" + fileName
+    scipy.io.savemat(fileNameWithPath + '.mat', workspaceDict)
+    np.save(fileNameWithPath + '.npy', workspaceDict)
     #plt.show()
     plt.tight_layout()
     figureFileNameWithPath = projectDir + "/" + fileName + '.png'
@@ -180,11 +181,12 @@ def openExample(filePath):
     uncodedStream = (workSpaceDictionary['uncodedSequence'])[0]
     encodedStream = (workSpaceDictionary['encodedNucStream'])[0]
     gcVariance(encodedStream, 50)
-    #varianceArray, slidingPoints, gcContent, argMaxGCCOntent, argMinGCContent = gcVariance(encodedStream, 50)
-    #return workSpaceDictionary, uncodedStream, encodedStream, varianceArray, slidingPoints, gcContent, argMaxGCCOntent, argMinGCContent
-    return
+    varianceArray, slidingPoints, gcContent, argMaxGCCOntent, argMinGCContent = gcVariance(encodedStream, 50)
+    return workSpaceDictionary, uncodedStream, encodedStream, varianceArray, slidingPoints, gcContent, argMaxGCCOntent, argMinGCContent
+    #return
 
 if __name__ == '__main__':
+    #pass
     projectDir = os.environ.get('EUCLID')
     if projectDir == None:
         sys.path.insert(1, projectDir)

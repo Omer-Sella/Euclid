@@ -240,8 +240,8 @@ def makeFSM(candidates, verticalSymbols, horizontalSymbols, mechanism):
     #states = verticalSymbols
     #triggers = horizontalSymbols
     # Now comes the hard part: we need to choose an output (validPrefix + newHorizontalSymbol) for every (state, trigger) pair.
-    outputDictionary = {}
     outputFSM = {}
+    outputDictionary = {}
     #Now use multiprocessing over the vertical symbols
     for vs in verticalSymbols:
         outputDictionary[vs] = {}
