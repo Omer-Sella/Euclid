@@ -46,6 +46,7 @@ This will allow you to use the function FSMdictionaryEncoder to push the binary 
 encodedStream = convolutional.FSMdictionaryEncoder(binaryTextLine, euclidFSM)
 ```
 The result would be a list of outputs, and to get a continuous binary string from them you could use:
+```python
 flatStream = ''
 for sublist in encodedStream:
  flatStream = flatStream + sublist
