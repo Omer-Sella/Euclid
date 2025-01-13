@@ -12,7 +12,7 @@ If in addition we wanted to avoid the sequence GNGTC where N is one of {A,C,T,G}
 ```python
 constraintList = {'gcMin': 0.35, 'gcMax': 0.65, 'runLength': 8,'regex3': 'G[ACTG]GTC'}
 ```
-Once this list is formed, and a symbol size (the size of each symbol in the FSM encoding) is set, you can use the function connectivityMatrix:
+Once this list is formed, and a symbol size (the size of each symbol in the FSM encoding) is set (you need to choose the symbol size, but to run on a reasonable single machine limit yourself to a maximum of 6 or 7), you can use the function connectivityMatrix:
 ```python
 connectivityMatrix, sequencesBinary, sequencesBases, violationsMatrix, connectivityDictionaryBinary = connectivityMatrix(constraintList, symbolSize)
 ```
@@ -20,3 +20,10 @@ connectivityMatrix, connectivityDictionaryBinary and sequenceBinary could then b
 ```python
 candidates, vSymbols, hSymbols = generateCandidates(matrix = connectivityMatrix, connectivityDictionary = connectivityDictionaryBinary, seqBinary = sequencesBinary, seqBinary = sequencesBinary, ['0', '1'])
 ```python
+Finally, use the candidates, vSymbols and hSymbols, as well as a choice mechanism (trackGC or random are the only ones currently implemented), to commit to a specific choice of symbols (making the encoding completely deterministic):
+```python
+numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols = makeFSM(c = candidates, vsym = vSymbols, hsym = hSymbols, trackGClevel)
+```
+Note that trackGClevel tracks 0.5 by default and could be changed.
+
+
