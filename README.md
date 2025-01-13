@@ -19,11 +19,38 @@ connectivityMatrix, sequencesBinary, sequencesBases, violationsMatrix, connectiv
 connectivityMatrix, connectivityDictionaryBinary and sequenceBinary could then be used to form two lists of symbols (vertical and horizontal, but consider them just as names) as well as candidates, that could be plugged between a vertical and a horizontal symbol, in a way that will not violate the list of constraints: 
 ```python
 candidates, vSymbols, hSymbols = generateCandidates(matrix = connectivityMatrix, connectivityDictionary = connectivityDictionaryBinary, seqBinary = sequencesBinary, seqBinary = sequencesBinary, ['0', '1'])
-```python
+```
 Finally, use the candidates, vSymbols and hSymbols, as well as a choice mechanism (trackGC or random are the only ones currently implemented), to commit to a specific choice of symbols (making the encoding completely deterministic):
 ```python
 numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols = makeFSM(c = candidates, vsym = vSymbols, hsym = hSymbols, trackGClevel)
 ```
 Note that trackGClevel tracks 0.5 by default and could be changed.
-
-
+This makes up everything you need for an FSM encoding. 
+# How to encode DNA data
+To actually encode data, you will need to instantiate an FSM, so use:
+```python
+euclidFSM = convolutional.makeEuclidFSM(verticalSymbols, horizontalSymbols, outputFSM)
+```
+Then you will need some kind of conversion from DNA string (dnaString) to a binary string, which you can get using:
+```python
+status, binaryTextLine, binaryLineNumerical = mapping.dnaToBinary(dnaString)
+```
+The length of the binary string may not be an integer multiple of the FSM trigger (input) size, so pad it using, for example:
+```python
+if (len(binaryTextLine) % triggerLength) != 0:
+   padding = '0' * (triggerLength - (len(binaryTextLine) % triggerLength))
+   binaryTextLine = binaryTextLine + padding
+```
+This will allow you to use the function FSMdictionaryEncoder to push the binary string through a finite state machine. 
+```python
+encodedStream = convolutional.FSMdictionaryEncoder(binaryTextLine, euclidFSM)
+```
+The result would be a list of outputs, and to get a continuous binary string from them you could use:
+flatStream = ''
+for sublist in encodedStream:
+ flatStream = flatStream + sublist
+ ```
+The result could be translated back to a DNA string using:
+```python
+encodedNucStream = mapping.binaryStreamToBases(flatStream)
+```
