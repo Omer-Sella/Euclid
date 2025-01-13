@@ -5,9 +5,18 @@ The constraint list is made of regular expressions as well as some numeric param
 constraintList = {'gcMin': 0.35, 'gcMax': 0.65}
 ```
  If we add maximum run length (maximal nuber of identical consecutive bases) of 8 we get:
-  constraintList = {'gcMin': 0.35, 'gcMax': 0.65, 'runLength': 8}
+```python
+constraintList = {'gcMin': 0.35, 'gcMax': 0.65, 'runLength': 8}
+```
 If in addition we wanted to avoid the sequence GNGTC where N is one of {A,C,T,G}, we would add a regular expression:
- constraintList = {'gcMin': 0.35, 'gcMax': 0.65, 'runLength': 8,'regex3': 'G[ACTG]GTC'}
-Once this list is formed, and a symbol size (the size of each symbol in the FSM encoding) is set, you can use the function connectivityMatrix to get 
+```python
+constraintList = {'gcMin': 0.35, 'gcMax': 0.65, 'runLength': 8,'regex3': 'G[ACTG]GTC'}
+```
+Once this list is formed, and a symbol size (the size of each symbol in the FSM encoding) is set, you can use the function connectivityMatrix:
+```python
 connectivityMatrix, sequencesBinary, sequencesBases, violationsMatrix, connectivityDictionaryBinary = connectivityMatrix(constraintList, symbolSize)
-From 
+```
+connectivityMatrix, connectivityDictionaryBinary and sequenceBinary could then be used to form two lists of symbols (vertical and horizontal, but consider them just as names) as well as candidates, that could be plugged between a vertical and a horizontal symbol, in a way that will not violate the list of constraints: 
+```python
+candidates, vSymbols, hSymbols = generateCandidates(matrix = connectivityMatrix, connectivityDictionary = connectivityDictionaryBinary, seqBinary = sequencesBinary, seqBinary = sequencesBinary, ['0', '1'])
+```python
