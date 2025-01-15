@@ -321,7 +321,14 @@ def euclidCandidates(constraintList, symbolSize):
     candidates, vSymbols, hSymbols = generateCandidates(matrix, connectivityDictionary, seqBinary, seqBinary, ['0', '1'])
     return candidates, connectivityDictionary, vSymbols, hSymbols
     
-
+def testEuclid2(constraintList = None, symbolSize = 4):
+    if constraintList == None:
+        return testEuclid(symbolSize = symbolSize)
+    else:
+        candidates, connectivityDictionary, vSymbols, hSymbols = euclidCandidates(constraintList = constraintList, symbolSize = symbolSize)
+        numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols = makeFSM(candidates = candidates, vsym = vSymbols, hsym = hSymbols, mechanism = trackGClevel)
+        return numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols
+        
 def testEuclid(symbolSize = 4):
     c, cd, vsym, hsym = euclidCandidatesForTheJoin()
     #numberOfPossibleCandidatesCountMatrix, outputDictionary, outputFSM, verticalSymbols, horizontalSymbols = makeFSM(c, vsym, hsym, minimiseReservedValue)
