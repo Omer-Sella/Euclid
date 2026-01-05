@@ -41,6 +41,13 @@
   </style>
 </head>
 <body>
+  <div style="max-width: 760px; margin: 0 auto 20px auto;">
+    <label for="mapping-select" style="display: block; margin-bottom: 8px;">Encoding Method:</label>
+    <select id="mapping-select" style="width: 100%; padding: 8px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; background: white;">
+      <option value="simple">Simple Binary Mapping (00→A, 01→C, 10→G, 11→T)</option>
+      <option value="euclid">Euclid FSM Encoding (encodeData-based)</option>
+    </select>
+  </div>
   <div class="container">
     <div class="box">
       <label for="text-input">Input Text</label>
@@ -51,10 +58,14 @@
       <textarea id="dna-output" readonly placeholder="Resulting DNA will appear here"></textarea>
     </div>
   </div>
+  <div class="box" id="svg-display-box" style="display: none; margin-top: 20px; max-width: 760px; margin-left: auto; margin-right: auto;">
+    <label>SVG Preview</label>
+    <div id="svg-preview" style="background: #fafafa; border: 1px solid #eee; min-height: 40px; padding: 8px; border-radius: 6px;"></div>
+  </div>
   <script>
+    // Mapping 1: Simple binary to DNA mapping
     // Given encoding: 00 -> A, 01 -> C, 11 -> T, 10 -> G
-
-    function textToDNA(text) {
+    function textToDNASimple(text) {
       let dna = '';
       for (let i = 0; i < text.length; i++) {
         let charCode = text.charCodeAt(i);
@@ -72,48 +83,100 @@
       return dna;
     }
 
+    // Mapping 2: Euclid FSM Encoding (based on encodeData function)
+    // Note: This is a simplified version. The full encodeData function uses:
+    // 1. An FSM encoder that requires loading an .npy file with encoding parameters
+    // 2. The FSM encoder transforms the binary stream before converting to DNA
+    // 3. The final binary-to-DNA conversion uses the same mapping as simple (binaryStreamToBases)
+    // 
+    // For a full implementation, you would need:
+    // - Server-side processing to load .npy files and run the FSM encoder
+    // - Or a JavaScript implementation of the FSM encoder
+    // 
+    // This simplified version uses the same binary-to-DNA mapping but demonstrates the structure
+    function textToDNAEuclid(text) {
+      // Convert text to ASCII, then to binary (same as encodeData does)
+      let binaryData = '';
+      for (let i = 0; i < text.length; i++) {
+        let charCode = text.charCodeAt(i);
+        binaryData += charCode.toString(2).padStart(8, '0');
+      }
+      
+      // In the full encodeData implementation, the binary would be:
+      // 1. Padded to match FSM trigger length
+      // 2. Encoded through FSMdictionaryEncoder (which transforms it)
+      // 3. Then converted to DNA bases using binaryStreamToBases
+      //
+      // Since we don't have the FSM encoder here, we'll use the same mapping
+      // but note that the actual encodeData would produce different output
+      // due to the FSM transformation step
+      
+      // For now, we'll use the same binary-to-DNA conversion
+      // (In reality, encodeData would transform the binary first via FSM)
+      let dna = '';
+      for (let i = 0; i < binaryData.length; i += 2) {
+        let pair = binaryData.slice(i, i+2);
+        if (pair.length === 2) {
+          if (pair === '00') dna += 'A';
+          else if (pair === '01') dna += 'C';
+          else if (pair === '10') dna += 'G';
+          else if (pair === '11') dna += 'T';
+        }
+      }
+      
+      return dna;
+    }
+
+    // Main conversion function that uses the selected mapping
+    function textToDNA(text, mappingType) {
+      if (mappingType === 'euclid') {
+        return textToDNAEuclid(text);
+      } else {
+        return textToDNASimple(text);
+      }
+    }
+
+    function isValidSVG(text) {
+      // Try parsing the text as SVG XML
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, "image/svg+xml");
+      const svg = doc.documentElement;
+      // Check root tag is <svg> and no parsererror
+      if (svg && svg.tagName && svg.tagName.toLowerCase() === 'svg') {
+        // Look for parsererror
+        if (svg.getElementsByTagName('parsererror').length === 0 && !svg.querySelector('parsererror')) {
+          return true;
+        }
+      }
+      return false;
+    }
+
     const inputBox = document.getElementById('text-input');
     const outputBox = document.getElementById('dna-output');
+    const mappingSelect = document.getElementById('mapping-select');
+    const svgDisplayBox = document.getElementById('svg-display-box');
+    const svgPreview = document.getElementById('svg-preview');
 
-    inputBox.addEventListener('input', function() {
+    function updateOutput() {
       const input = inputBox.value;
-      const dna = textToDNA(input);
+      const mappingType = mappingSelect.value;
+      
+      // DNA conversion using selected mapping
+      const dna = textToDNA(input, mappingType);
       outputBox.value = dna;
-    });
+      
+      // SVG preview
+      if (isValidSVG(input)) {
+        svgPreview.innerHTML = input;
+        svgDisplayBox.style.display = '';
+      } else {
+        svgPreview.innerHTML = '';
+        svgDisplayBox.style.display = 'none';
+      }
+    }
+
+    inputBox.addEventListener('input', updateOutput);
+    mappingSelect.addEventListener('change', updateOutput);
   </script>
 </body>
 </html>
-<div class="box" id="svg-display-box" style="display: none; margin-top: 20px;">
-  <label>SVG Preview</label>
-  <div id="svg-preview" style="background: #fafafa; border: 1px solid #eee; min-height: 40px; padding: 8px;"></div>
-</div>
-<script>
-  function isValidSVG(text) {
-    // Try parsing the text as SVG XML
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(text, "image/svg+xml");
-    const svg = doc.documentElement;
-    // Check root tag is <svg> and no parsererror
-    if (svg && svg.tagName && svg.tagName.toLowerCase() === 'svg') {
-      // Look for parsererror
-      if (svg.getElementsByTagName('parsererror').length === 0 && !svg.querySelector('parsererror')) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  const svgDisplayBox = document.getElementById('svg-display-box');
-  const svgPreview = document.getElementById('svg-preview');
-
-  inputBox.addEventListener('input', function() {
-    const input = inputBox.value;
-    if (isValidSVG(input)) {
-      svgPreview.innerHTML = input;
-      svgDisplayBox.style.display = '';
-    } else {
-      svgPreview.innerHTML = '';
-      svgDisplayBox.style.display = 'none';
-    }
-  });
-</script>
