@@ -146,5 +146,8 @@ def dnaFileToDnaFileUsingEuclid(inputFile, outputFile, constraintList = None, sy
                 encodedNucStream = s[0 : start] + encodedNucStream + s[end : -1] + '\n'
                 outFileID.write(encodedNucStream)
     return
-            
-            
+
+if __name__ == '__main__':
+    pass
+    #return dnaFileToDnaFileUsingEuclid()
+    

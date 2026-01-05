@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Text to DNA Encoder</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background: #f9f9f9;
+    }
+    .container {
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .box {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    textarea {
+      width: 100%;
+      min-height: 140px;
+      font-size: 16px;
+      padding: 10px;
+      resize: vertical;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      background: white;
+    }
+    label {
+      font-weight: bold;
+      margin-bottom: 8px;
+      margin-left: 2px;
+      color: #222;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="box">
+      <label for="text-input">Input Text</label>
+      <textarea id="text-input" placeholder="Enter your text here..."></textarea>
+    </div>
+    <div class="box">
+      <label for="dna-output">DNA Output</label>
+      <textarea id="dna-output" readonly placeholder="Resulting DNA will appear here"></textarea>
+    </div>
+  </div>
+  <script>
+    // Given encoding: 00 -> A, 01 -> C, 11 -> T, 10 -> G
+
+    function textToDNA(text) {
+      let dna = '';
+      for (let i = 0; i < text.length; i++) {
+        let charCode = text.charCodeAt(i);
+        // 8 bits per char, padded with zeros.
+        let bits = charCode.toString(2).padStart(8, '0');
+        // Each two bits map to a DNA base.
+        for (let j = 0; j < 8; j += 2) {
+          let pair = bits.slice(j, j+2);
+          if (pair === '00') dna += 'A';
+          else if (pair === '01') dna += 'C';
+          else if (pair === '10') dna += 'G';
+          else if (pair === '11') dna += 'T';
+        }
+      }
+      return dna;
+    }
+
+    const inputBox = document.getElementById('text-input');
+    const outputBox = document.getElementById('dna-output');
+
+    inputBox.addEventListener('input', function() {
+      const input = inputBox.value;
+      const dna = textToDNA(input);
+      outputBox.value = dna;
+    });
+  </script>
+</body>
+</html>
+<div class="box" id="svg-display-box" style="display: none; margin-top: 20px;">
+  <label>SVG Preview</label>
+  <div id="svg-preview" style="background: #fafafa; border: 1px solid #eee; min-height: 40px; padding: 8px;"></div>
+</div>
+<script>
+  function isValidSVG(text) {
+    // Try parsing the text as SVG XML
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(text, "image/svg+xml");
+    const svg = doc.documentElement;
+    // Check root tag is <svg> and no parsererror
+    if (svg && svg.tagName && svg.tagName.toLowerCase() === 'svg') {
+      // Look for parsererror
+      if (svg.getElementsByTagName('parsererror').length === 0 && !svg.querySelector('parsererror')) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  const svgDisplayBox = document.getElementById('svg-display-box');
+  const svgPreview = document.getElementById('svg-preview');
+
+  inputBox.addEventListener('input', function() {
+    const input = inputBox.value;
+    if (isValidSVG(input)) {
+      svgPreview.innerHTML = input;
+      svgDisplayBox.style.display = '';
+    } else {
+      svgPreview.innerHTML = '';
+      svgDisplayBox.style.display = 'none';
+    }
+  });
+</script>
