@@ -175,8 +175,16 @@
       }
     }
 
+    // Update output when input changes
     inputBox.addEventListener('input', updateOutput);
-    mappingSelect.addEventListener('change', updateOutput);
+    
+    // Update output when mapping selection changes
+    mappingSelect.addEventListener('change', function() {
+      updateOutput();
+    });
+    
+    // Initial update on page load
+    updateOutput();
   </script>
 </body>
 </html>
